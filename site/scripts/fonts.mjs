@@ -17,7 +17,7 @@
  *  ── WHY THIS IS A BUILD STEP AND NOT A LINE IN layout.tsx ───────────
  *
  *  The fonts come from Fontsource, so their URLs carry a content hash —
- *  barlow-condensed-latin-800-normal.ee6f2fa6.woff2 — which
+ *  unbounded-latin-800-normal.ee6f2fa6.woff2 — which
  *  changes whenever the font package is updated. A hand-written preload
  *  would be correct until the next `npm update` and then silently point
  *  at a file that no longer exists, which is worse than no preload at
@@ -58,7 +58,7 @@ const OUT = "out";
  * A pattern that matches nothing fails the build with the filename it
  * looked for, rather than shipping a page with no preload.
  */
-const PRELOAD = [/barlow-condensed-latin-800-normal\.[a-f0-9]+\.woff2/];
+const PRELOAD = [/unbounded-latin-800-normal\.[a-f0-9]+\.woff2/];
 
 function cssFiles(dir, found = []) {
   for (const name of readdirSync(dir)) {

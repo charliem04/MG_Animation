@@ -2,122 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── BRAND TOKENS — edit these per client, and nothing else ─────────
-   Values are space-separated RGB channels so Tailwind opacity works
-   (`bg-brand/20` resolves against these). tailwind.config.ts maps every
-   color utility onto them, so it should not need editing per client.
+/* ── SIGNAL — Matt Guidry's site skin ───────────────────────────────
+   A broadcast monitor in a dark room: true black, one hot orange, one
+   ice blue, scanlines and a slight red/blue split, so the footage
+   supplies every other colour. Source of truth: the "Matt Guidry
+   Signal" design system (tokens.json + README).
 
-   TODO(client): replace this whole block. What ships here is the
-   template's house skin, derived from the trades world: warm paper
-   ground (estimate-pad bias), near-black warm ink, work-order rubric
-   red as the single action colour, hairline rules instead of shadows.
-   It is a real skin, not a neutral one — re-skin it per client rather
-   than shipping a second client in the same paperwork.
+   Two layers below:
+     1. Signal tokens (hex, named as in the design system). Components
+        under components/signal/ read these.
+     2. The template's RGB-channel tokens, re-pointed at Signal, so the
+        Tailwind utilities (bg-surface, text-accent…) and every older
+        page — legal, 404, cookie banner — land in the same world.
 
-   ── HOW TO PICK THEM ────────────────────────────────────────────────
-
-   Sample from the client's own logo rather than from a palette
-   generator. Two accents, and they do different jobs:
-
-     --brand    STRUCTURE. Links, focus rings, hover rules, the closing
-                band ground. Appears constantly, so it has to be quiet.
-     --accent   ACTION. Buttons and one or two pointing devices, and
-                nothing else. The moment it appears on a third thing it
-                stops meaning "press this".
-
-   --accent-ink is the text colour ON the action colour. The skin this
-   was extracted from ran a light gold with ink on it; red wants paper
-   on it. Pick whichever of the two clears 4.5:1 against --accent.
-
-   Check contrast before committing: --ink-faint is the one that fails,
-   because it is the lightest text and it lands on --surface-alt. Aim
-   for 4.5:1 on body copy and 3:1 on large display type. The values
-   below measure: ink-faint on surface-alt 5.1:1, accent-ink on accent
-   6.5:1, brand-soft (the mono labels) on surface-alt 4.9:1.
-
-   Dark grounds get their own accent — see the block after :root.
-
-   scripts/check.mjs (`npm run check`) flags inherited defaults —
-   Tailwind's stock indigo, the Material easing curve, a stat band of
-   suspiciously round numbers. Run it after re-skinning. */
+   Rules that matter (README → Visual foundations):
+     - signal is the ONE action colour. If it is orange it is clickable
+       or live. Text on a signal fill is on-signal, never white.
+     - ice does structure: focus rings, link underlines, the cool split.
+     - line is decorative only; anything you press or type into gets
+       line-control for its edge.
+   Contrast (measured in the design system): ink 17:1, ink-dim 5.7:1,
+   signal 6.1:1 on bg; line-control 3.8:1. */
 :root {
-  /* Structure accent. Links, focus rings, the closing band ground. */
-  --brand: 52 49 44; /* warm graphite */
-  --brand-strong: 28 27 24;
-  --brand-soft: 108 104 96; /* mono labels — check on surface-alt */
+  color-scheme: dark;
 
-  /* Action accent. Buttons only, always with --accent-ink on it. */
-  --accent: 168 48 28; /* work-order red */
-  --accent-lift: 188 60 38;
-  --accent-press: 134 38 22;
-  --accent-ink: 251 250 246;
+  /* 1 ── Signal tokens */
+  --bg: #050506;
+  --bg-raised: #0d0e12;
+  --ink-hex: #e4ecff;
+  --ink-dim: #7d879e;
+  --signal: #ff4d1f;
+  --on-signal: #050506;
+  --ice: #9db8ff;
+  --line-hex: #3b4661;
+  --line-control: #5e6b8c;
+  --osd: #ffffff;
+  --scrim: rgba(0, 0, 0, 0.7);
 
-  --ink: 28 27 24; /* warm near-black: deepest ground, headings on light */
-  --ink-soft: 82 79 72; /* body copy on light ground */
-  --ink-faint: 106 102 94; /* captions, placeholders — check this one */
-  --ink-invert: 251 250 246; /* headings on the deep ground */
-  --ink-invert-soft: 214 209 197; /* body copy on the deep ground */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --space-7: 64px;
+  --space-8: 96px;
 
-  --surface: 251 250 246; /* paper — warm neutral bias */
-  --surface-alt: 244 242 235; /* tonal step, no shadows */
-  --surface-deep: 28 27 24; /* dark band ground */
-  --surface-deep-alt: 44 42 38; /* raised dark surface */
+  --radius-none: 0px;
+  --radius-tag: 2px;
+  --radius-dot: 999px;
 
-  /* Form errors. Deliberately darker and cooler than the action red so
-     an error never reads as a button. */
-  --danger: 153 27 27;
-  --danger-soft: 252 242 240;
+  --glow-signal: 0 0 calc(var(--fx) * 31px) rgba(255, 77, 31, 0.55);
+  --glow-signal-hover: 0 0 calc(var(--fx) * 51px) rgba(255, 77, 31, 0.75);
+  --frame-reel: 0 0 0 2px var(--signal), 0 0 calc(var(--fx) * 71px) rgba(255, 77, 31, 0.3);
+  --ring-focus: 0 0 0 2px var(--ice);
 
-  --line: 224 220 209; /* hairline on light */
-  --line-dark: 240 236 226; /* hairline on dark grounds — used at 20% */
+  --duration-fast: 180ms;
+  --duration-mid: 420ms;
+  --duration-slow: 900ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-step: steps(2);
 
-  /* Type. Swap these AND the @fontsource imports in app/layout.tsx
-     together — a stack naming a face that was never imported falls
-     silently back to the system font and nobody notices for a week.
-     Body and utility are system stacks on purpose: nothing to
-     download, and they read as paperwork rather than as a brand. */
-  --font-display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
-  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-utility: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* One dial for glow, scanlines and RGB split. 0.7 is the approved look. */
+  --fx: 0.7;
 
-  /* Decorative rhythm used by the SeamMark in components/SectionHead. */
+  /* Unbounded / Instrument Sans / JetBrains Mono, self-hosted via
+     Fontsource (app/layout.tsx). Swap imports and stacks together. */
+  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-utility: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: var(--font-utility);
+
+  /* 2 ── Template tokens, as RGB channels for Tailwind opacity */
+  --brand: 157 184 255; /* ice */
+  --brand-strong: 228 236 255;
+  --brand-soft: 125 135 158; /* ink-dim */
+
+  --accent: 255 77 31; /* signal */
+  --accent-lift: 255 106 66;
+  --accent-press: 224 61 20;
+  --accent-ink: 5 5 6; /* on-signal */
+
+  --ink: 228 236 255;
+  --ink-soft: 228 236 255;
+  --ink-faint: 125 135 158;
+  --ink-invert: 228 236 255;
+  --ink-invert-soft: 200 210 232;
+
+  --surface: 5 5 6;
+  --surface-alt: 13 14 18;
+  --surface-deep: 5 5 6;
+  --surface-deep-alt: 13 14 18;
+
+  --danger: 255 138 128;
+  --danger-soft: 40 12 12;
+
+  --line: 59 70 97;
+  --line-dark: 94 107 140;
+
   --rib: 26px;
-}
-
-/* ── THE ACCENT ON DARK GROUNDS ──────────────────────────────────────
-   Work-order red is 2.5:1 on the deep ground — fine as a button fill,
-   unreadable as a link or a label, and the utility bar and footer are
-   full of both. The skin this came from never met the problem because
-   gold is light enough to sit on ink.
-
-   So the accent is re-declared inside every dark ground rather than
-   patched component by component: a lighter red that measures 6.2:1 on
-   --surface-deep and 4.7:1 on --brand, with ink on it instead of paper.
-   Every bg-accent, text-accent and border-accent inside these grounds
-   picks it up with no markup change, including anything added later.
-   Re-skinning? Re-check this block with the one above. */
-.on-deep,
-.bg-surface-deep,
-.bg-brand {
-  --accent: 236 124 98;
-  --accent-lift: 244 146 122;
-  --accent-press: 214 102 76;
-  --accent-ink: 28 27 24;
 }
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg);
 }
 
-/* The header is sticky, so an element jumped to by its id would come to
-   rest underneath it — you land on the section you asked for with its
-   heading hidden behind the bar. :target rather than [id] so this only
-   applies to the element actually being navigated to, and costs nothing
-   anywhere else.
-
-   This is the native-scroll half. Lenis does not read scroll-margin, so
-   it is told the same offset directly in components/SmoothScroll.tsx —
-   change one and change the other. */
+/* The nav is sticky; land on a section with its heading clear of it.
+   Lenis is told the same offset in components/SmoothScroll.tsx. */
 :target {
   scroll-margin-top: 96px;
 }
@@ -126,190 +118,838 @@ html {
   html {
     scroll-behavior: auto;
   }
-
-  /* Framer writes an entrance's starting state into the markup as an
-     inline style, and the export is built once with no visitor, so that
-     happens whatever this browser prefers. The components do stop
-     animating — see useStillness in lib/useScrollMotion.ts — but only
-     from their second render, because the first has to match the HTML
-     it is hydrating or React throws the whole tree away.
-
-     This covers the frame in between. Same selector as the <noscript>
-     rule in app/layout.tsx, for the same reason: catch every animated
-     element, including ones added by someone who never read this. */
   [style*="opacity:0"] {
     opacity: 1 !important;
     transform: none !important;
   }
-
-  /* A masked headline line has no opacity to neutralise — it is parked
-     below its clip by a transform alone, so the rule above never
-     matched it and the heading stayed invisible. Marked explicitly
-     rather than matched on "translateY", which would also catch
-     transforms doing real layout work elsewhere. */
   [data-mask-line] {
     transform: none !important;
   }
 }
 
 body {
-  @apply bg-surface font-body text-[17px] leading-[1.62] text-ink-soft antialiased;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink-hex);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
-  @apply font-display uppercase text-ink;
-  letter-spacing: 0.005em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--ink-hex);
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
 
-h1, h2 {
-  @apply font-extrabold leading-[0.9];
-}
-
-h3, h4 {
-  @apply font-bold leading-none;
-}
-
-/* Selection, caret, scrollbar — themed, not inherited */
 ::selection {
-  background: rgb(var(--ink));
-  color: rgb(var(--surface));
+  background: var(--signal);
+  color: var(--on-signal);
 }
 
 input, textarea, select {
-  caret-color: rgb(var(--brand));
+  caret-color: var(--signal);
 }
 
 html {
-  scrollbar-color: rgb(var(--brand-soft)) rgb(var(--surface-alt));
+  scrollbar-color: var(--line-control) var(--bg);
   scrollbar-width: thin;
 }
 
-::-webkit-scrollbar {
-  width: 11px;
-  height: 11px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgb(var(--surface-alt));
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--brand-soft));
-  border: 3px solid rgb(var(--surface-alt));
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--brand));
-}
-
-/* Visible keyboard focus everywhere. On the deep ground the ring
-   switches to the accent, which is re-declared light enough to read
-   there (see THE ACCENT ON DARK GROUNDS above). */
+/* Keyboard focus: ice ring, solid, on every control. */
 :focus-visible {
-  outline: 2px solid rgb(var(--brand));
+  outline: 2px solid var(--ice);
   outline-offset: 3px;
-  border-radius: 1px;
 }
 
-.on-deep :focus-visible {
-  outline-color: rgb(var(--accent));
-}
-
-/* ── Spacing registers ──────────────────────────────────────────────
-   Intra-component: 6/10/16/26/42px (the gap-* scale in markup).
-   Band beat: a single clamp so the page breathes the same at every
-   width. The utility bar breaks the register deliberately — it is a
-   40px rail, not a band. */
 .section {
-  @apply mx-auto w-full max-w-content px-[clamp(18px,4vw,44px)];
+  @apply mx-auto w-full max-w-content;
+  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px));
 }
 
 .band {
-  @apply py-[clamp(74px,9vw,126px)];
+  padding-block: clamp(56px, 8vw, var(--space-8));
 }
 
-/* ── THE SAME-GROUND SEAM ────────────────────────────────────────────
-   Nearly every band on this site is separated from its neighbour by a
-   change of ground, so the two paddings either side of a seam read as
-   the edge of a colour rather than as space. Where two bands share a
-   ground — the proof band running into recent work on the home page —
-   there is no colour doing that work and the two paddings simply add
-   up to a quarter of the viewport in white, which reads as a section
-   that failed to load. `band-seam` goes on the first of such a pair
-   and halves both sides of the join: still a clear beat between two
-   headings, without the hole. */
-.band-seam {
-  @apply pb-[clamp(36px,4.5vw,62px)];
-}
-
-.band-seam + .band {
-  @apply pt-[clamp(36px,4.5vw,62px)];
-}
-
-/* Mono utility labels — the register the client's own paperwork uses for
-   field names, hours and spec keys. Never a decorative kicker. */
-/* In @layer components on purpose. Unlayered, this rule is emitted
-   after @tailwind utilities and wins against every text-* utility —
-   which is how <p class="u-label text-accent"> silently rendered
-   the wrong colour. Layered, a utility overrides it. */
 @layer components {
   .u-label {
-    @apply font-mono text-[12px] font-medium uppercase tracking-[0.09em] text-brand-soft;
-  }
-
-  /* --brand-soft is a light-ground colour; on the ink ground it
-     measures under 3:1 and the label vanishes. The inverted body tone
-     reads as the same quiet register and clears 4.5:1 comfortably. */
-  .on-deep .u-label {
-    color: rgb(var(--ink-invert-soft) / 0.8);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
   }
 }
 
-/* Buttons: pressed state everywhere, no hover lifts */
 .btn-press {
   @apply transition-colors duration-150 active:translate-y-px;
 }
 
-/* Bullet list: an accent seam tick instead of a disc */
 .ticks li {
   @apply relative pl-5 text-base;
 }
-
 .ticks li::before {
   content: "";
   @apply absolute left-0 top-[9px] h-[3px] w-[9px] bg-accent;
 }
 
-/* The same list, marked as an exclusion rather than an inclusion —
-   used for "what we don't do" beside "what we do". A muted rule, not a
-   red cross: these are boundaries, not failures. */
-.ticks-muted li {
-  @apply relative pl-5 text-base;
-}
+/* ══ SIGNAL COMPONENTS ═══════════════════════════════════════════════
+   Ported from components/bundle.css in the design system. Every value
+   comes from the tokens above; --fx scales every effect. */
 
-.ticks-muted li::before {
-  content: "";
-  @apply absolute left-0 top-[11px] h-px w-[9px] bg-ink-faint;
+/* ── effects ── Never stack .sg-ab and .sg-glow on one element. */
+.sg-ab {
+  text-shadow:
+    calc(var(--fx) * -3px) 0 rgba(255, 77, 31, 0.85),
+    calc(var(--fx) * 3px) 0 rgba(111, 155, 255, 0.85),
+    0 0 calc(var(--fx) * 18px) rgba(228, 236, 255, 0.35);
 }
-
-.on-deep .ticks-muted li::before {
-  @apply bg-ink-invert-soft/50;
+.sg-glow {
+  text-shadow: 0 0 calc(var(--fx) * 11px) var(--signal), 0 0 calc(var(--fx) * 2px) var(--signal);
 }
-
-/* The rib field. Vertical hairlines at --rib pitch, masked top and
-   bottom so the band reads as a surface catching light rather than as
-   a striped background. The same rhythm as the SeamMark. */
-.seam-field::before {
+.sg-scan {
+  position: relative;
+  isolation: isolate;
+}
+.sg-scan::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    rgb(var(--accent) / 0.16) 0 1px,
-    transparent 1px var(--rib)
-  );
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 62%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 62%, transparent 100%);
-  opacity: 0.7;
   pointer-events: none;
+  z-index: 3;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    rgba(0, 0, 0, calc(0.34 * var(--fx))) 2px 3px
+  );
+}
+.sg-vignette::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, calc(0.75 * var(--fx))) 100%);
+}
+
+/* ── type ── */
+.sg-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.sg-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.sg-tc {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.sg-dim {
+  color: var(--ink-dim);
+}
+.sg-signal {
+  color: var(--signal);
+}
+
+/* ── nav ── */
+.sg-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(5, 5, 6, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line-hex);
+}
+.sg-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-5);
+}
+.sg-nav-mark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-hex);
+  text-decoration: none;
+  text-shadow: 0 0 calc(var(--fx) * 12px) rgba(228, 236, 255, 0.45);
+}
+.sg-nav-links {
+  display: flex;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sg-nav-links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.sg-nav-links a:hover {
+  color: var(--ink-hex);
+}
+
+/* ── buttons ── */
+.sg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  border-radius: var(--radius-none);
+  border: 1px solid var(--signal);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-mid) var(--ease-out),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+}
+.sg-btn-primary {
+  background: var(--signal);
+  color: var(--on-signal);
+  box-shadow: var(--glow-signal);
+}
+.sg-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--glow-signal-hover);
+}
+.sg-btn-ghost {
+  background: transparent;
+  color: var(--ink-hex);
+  border-color: var(--line-control);
+}
+.sg-btn-ghost:hover {
+  border-color: var(--ink-hex);
+}
+.sg-btn-sm {
+  padding: 8px 10px;
+  font-size: 10px;
+}
+.sg-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+}
+.sg-btn[disabled] {
+  background: transparent;
+  color: var(--ink-dim);
+  border-color: var(--line-hex);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── hero ── */
+.sg-hero {
+  display: grid;
+  gap: var(--space-5);
+  padding-block: clamp(28px, 5vw, 56px) clamp(32px, 5vw, var(--space-7));
+}
+.sg-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-4) 32px;
+}
+.sg-hero-name {
+  margin: 0;
+  font-size: clamp(34px, 7.2vw, 96px);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.sg-hero-name .sg-l2 {
+  display: block;
+  color: var(--signal);
+}
+.sg-hero-meta {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 34ch;
+}
+.sg-hero-meta p {
+  margin: 0;
+  color: var(--ink-dim);
+}
+.sg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ── reel screen ── */
+.sg-reel {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  background: #000;
+  overflow: hidden;
+  border-radius: var(--radius-none);
+  box-shadow: var(--frame-reel);
+}
+.sg-reel video,
+.sg-reel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sg-roll {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18%;
+  top: -20%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, calc(0.06 * var(--fx))), transparent);
+  animation: sg-roll 7s linear infinite;
+}
+@keyframes sg-roll {
+  to {
+    top: 120%;
+  }
+}
+.sg-osd {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(10px, 2vw, 22px);
+  pointer-events: none;
+}
+.sg-osd-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--osd);
+}
+.sg-osd-row span {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.1vw, 12px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  background: var(--scrim);
+  padding: 3px 6px;
+  border-radius: var(--radius-tag);
+}
+.sg-rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sg-rec::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-dot);
+  background: var(--signal);
+  box-shadow: 0 0 8px var(--signal);
+  animation: sg-blink 1.2s var(--ease-step) infinite;
+}
+@keyframes sg-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+.sg-play {
+  pointer-events: auto;
+  align-self: center;
+  width: clamp(64px, 9vw, 84px);
+  aspect-ratio: 1;
+  border-radius: var(--radius-dot);
+  border: 1.5px solid var(--osd);
+  background: var(--scrim);
+  color: var(--osd);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition:
+    transform var(--duration-mid) var(--ease-out),
+    background var(--duration-fast),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+}
+.sg-play:hover {
+  transform: scale(1.08);
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--on-signal);
+}
+
+/* ── ticker ── */
+.sg-ticker {
+  border-block: 1px solid var(--line-hex);
+  overflow: hidden;
+  padding-block: var(--space-3);
+  white-space: nowrap;
+}
+.sg-ticker-track {
+  display: inline-flex;
+  gap: var(--space-6);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(18px, 2.4vw, 28px);
+  line-height: 1;
+  text-transform: uppercase;
+  animation: sg-tick 28s linear infinite;
+}
+.sg-ticker-track .sg-sep {
+  color: var(--signal);
+}
+@keyframes sg-tick {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── work sections ── */
+.sg-work {
+  display: grid;
+  gap: var(--space-7);
+  padding-block: clamp(40px, 6vw, var(--space-8));
+}
+.sg-cat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--line-hex);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.sg-cat h2 {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 36px);
+  line-height: 1;
+}
+.sg-cat p {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 14px;
+  max-width: 52ch;
+}
+.sg-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, calc((100% - 2 * var(--space-4)) / 3));
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 6px;
+  margin: 0;
+  list-style: none;
+  padding-left: 0;
+}
+.sg-rail > * {
+  scroll-snap-align: start;
+}
+
+/* ── project card ── The still is the card: no fill, no border. */
+.sg-card {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+.sg-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+  border-radius: var(--radius-none);
+  box-shadow: 0 0 0 1px var(--line-hex);
+}
+.sg-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+.sg-split {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity var(--duration-fast), transform var(--duration-mid) var(--ease-out);
+}
+.sg-split-r {
+  filter: url(#sg-only-r);
+}
+.sg-split-b {
+  filter: url(#sg-only-b);
+}
+.sg-card:hover .sg-thumb img,
+.sg-card:focus-visible .sg-thumb img {
+  transform: scale(1.04);
+}
+.sg-card:hover .sg-split,
+.sg-card:focus-visible .sg-split {
+  opacity: calc(0.9 * var(--fx));
+}
+/* Hard channel split, no easing (Signal motion notes). */
+.sg-card:hover .sg-split-r,
+.sg-card:focus-visible .sg-split-r {
+  transform: translateX(-6px);
+  transition-timing-function: steps(1);
+}
+.sg-card:hover .sg-split-b,
+.sg-card:focus-visible .sg-split-b {
+  transform: translateX(6px);
+  transition-timing-function: steps(1);
+}
+.sg-card:focus-visible {
+  outline: none;
+}
+.sg-card:focus-visible .sg-thumb {
+  box-shadow: var(--ring-focus);
+}
+.sg-tag {
+  position: absolute;
+  z-index: 4;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--osd);
+  background: var(--scrim);
+  padding: 3px 6px;
+  border-radius: var(--radius-tag);
+  font-variant-numeric: tabular-nums;
+}
+.sg-tag-fmt {
+  left: 8px;
+  top: 8px;
+}
+.sg-tag-rt {
+  right: 8px;
+  bottom: 8px;
+}
+.sg-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.sg-card-title {
+  font-weight: 600;
+  line-height: 1.4;
+}
+.sg-card-meta .sg-label {
+  white-space: nowrap;
+}
+
+/* ── lightbox ── */
+.sg-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: clamp(14px, 4vw, 48px);
+  background: rgba(5, 5, 6, 0.96);
+}
+.sg-lightbox-frame {
+  width: min(1100px, 100%);
+  display: grid;
+  gap: var(--space-3);
+}
+.sg-lightbox-screen {
+  box-shadow: var(--frame-reel);
+}
+.sg-lightbox-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.sg-lightbox-note {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 6;
+  padding: var(--space-3) var(--space-4);
+  background: var(--scrim);
+  color: var(--osd);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+/* ── contact ── */
+.sg-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, var(--space-7));
+  border-top: 1px solid var(--line-hex);
+  padding-block: clamp(48px, 7vw, var(--space-8));
+}
+@media (max-width: 820px) {
+  .sg-contact {
+    grid-template-columns: 1fr;
+  }
+}
+.sg-contact h2 {
+  margin: 12px 0 18px;
+  font-size: clamp(30px, 5vw, 64px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.sg-contact-lede {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--ink-dim);
+}
+.sg-quick {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+.sg-qrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border: 1px solid var(--line-control);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-mid) var(--ease-out);
+}
+.sg-qrow:hover {
+  border-color: var(--signal);
+  box-shadow: var(--glow-signal-hover);
+}
+.sg-qrow .sg-label {
+  width: 52px;
+}
+.sg-qrow a {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 1.6vw, 18px);
+  line-height: 1.3;
+  color: var(--ink-hex);
+  text-decoration: none;
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+/* ── form ── */
+.sg-form {
+  display: grid;
+  gap: var(--space-4);
+}
+.sg-f2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+@media (max-width: 520px) {
+  .sg-f2 {
+    grid-template-columns: 1fr;
+  }
+}
+.sg-field {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.sg-input {
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink-hex);
+  background: var(--bg-raised);
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius-none);
+  padding: 12px 14px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-mid) var(--ease-out);
+}
+.sg-input:focus {
+  outline: none;
+  border-color: var(--signal);
+  box-shadow: 0 0 0 1px var(--signal), 0 0 calc(var(--fx) * 26px) rgba(255, 77, 31, 0.35);
+}
+.sg-input[aria-invalid="true"] {
+  border-color: rgb(var(--danger));
+}
+textarea.sg-input {
+  min-height: 110px;
+  resize: vertical;
+}
+.sg-error {
+  font-size: 14px;
+  color: rgb(var(--danger));
+}
+.sg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.sg-chip {
+  position: relative;
+}
+.sg-chip input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.sg-chip b {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  padding: 9px 12px;
+  border: 1px solid var(--line-control);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+}
+.sg-chip input:checked + b {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--on-signal);
+}
+.sg-chip input:focus-visible + b {
+  box-shadow: var(--ring-focus);
+}
+.sg-status {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  min-height: 1.4em;
+}
+
+/* ── footer ── */
+.sg-foot {
+  border-top: 1px solid var(--line-hex);
+  padding-block: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.sg-foot a {
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+.sg-foot a:hover {
+  color: var(--ink-hex);
+}
+
+/* ══ MOTION ══════════════════════════════════════════════════════════
+   Power-on once per load; sections slice-wipe in; display headings
+   jitter 1–2 frames then settle. Elements are only armed by
+   components/signal/SignalMotion.tsx, so with no JS nothing is hidden. */
+.sg-power {
+  transform-origin: center 30vh;
+  animation: sg-power var(--duration-slow) var(--ease-out) both;
+}
+@keyframes sg-power {
+  0% {
+    transform: scaleY(0.004) scaleX(0.6);
+    filter: brightness(4);
+  }
+  35% {
+    transform: scaleY(0.004) scaleX(1);
+    filter: brightness(3);
+  }
+  70% {
+    transform: scaleY(1);
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+[data-wipe].sg-armed {
+  clip-path: inset(0 100% 0 0);
+}
+[data-wipe].sg-in {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path var(--duration-fast) var(--ease-out);
+}
+[data-wipe].sg-in h2 {
+  animation: sg-jitter 120ms var(--ease-step) 1;
+}
+@keyframes sg-jitter {
+  0% {
+    transform: translate(2px, -1px);
+  }
+  50% {
+    transform: translate(-2px, 1px);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* Keep the glows; drop the power-on, wipes, jitter, ticker and roll. */
+@media (prefers-reduced-motion: reduce) {
+  .sg-power,
+  .sg-ticker-track,
+  .sg-roll,
+  .sg-rec::before,
+  [data-wipe].sg-in h2 {
+    animation: none !important;
+  }
+  [data-wipe].sg-armed {
+    clip-path: none;
+  }
+  .sg-card,
+  .sg-card * {
+    transition-duration: 1ms !important;
+  }
 }

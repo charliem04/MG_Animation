@@ -23,19 +23,24 @@ export function JsonLd() {
     url: client.siteUrl,
     telephone: client.phoneHref,
     email: client.email,
+    // Only the parts that are filled in; a freelancer with no public
+    // street address still gets a region.
     address: {
       "@type": "PostalAddress",
-      streetAddress: client.address.street,
-      addressLocality: client.address.city,
-      addressRegion: client.address.region,
-      postalCode: client.address.postalCode,
+      ...Object.fromEntries(
+        Object.entries({
+          streetAddress: client.address.street,
+          addressLocality: client.address.city,
+          addressRegion: client.address.region,
+          postalCode: client.address.postalCode,
+        }).filter(([, v]) => v)
+      ),
     },
     areaServed: client.about.towns.map((town) => ({
       "@type": "City",
       name: `${town}, ${client.address.region}`,
     })),
     image: client.siteUrl + client.ogImagePath,
-    logo: client.siteUrl + client.logoPath,
     sameAs: [
       client.socials.facebook,
       client.socials.instagram,

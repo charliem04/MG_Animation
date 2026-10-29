@@ -12,3 +12,6 @@ dist/
 
 # JetBrains IDE settings
 .idea/
+
+# Source video files (hosted on Vimeo, too large for git)
+/media/

@@ -122,6 +122,10 @@ export const INTEGRATIONS = {
     "https://calendly.com",
     "https://cal.com",
     "https://challenges.cloudflare.com", // Turnstile renders in an iframe
+    // Vimeo's player, for every project and the full reel
+    // (components/signal/VideoLightbox.tsx). Its video and scripts load
+    // inside that iframe under Vimeo's own policy, not this one.
+    "https://player.vimeo.com",
     // TODO(client): the Google Maps embed in client.mapEmbedSrc
     // (components/Contact.tsx). Its src is
     // https://www.google.com/maps/embed?…, so the frame origin is
@@ -150,7 +154,8 @@ export const INTEGRATIONS = {
     "https://g.page",
     // TODO(client): this site's own canonical origin, as it appears in
     // canonicals, JSON-LD and the OG tags.
-    "https://www.example.com",
+    "https://mattjyguidry.tv", // client.siteUrl
+    "https://vimeo.com", // share links in content/work.ts, parsed, never fetched
     // Framework strings baked into React/Next dev warnings.
     "https://nextjs.org",
     "https://react.dev",

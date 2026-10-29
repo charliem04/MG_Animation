@@ -25,15 +25,15 @@ export type Testimonial = {
 
 export const client = {
   // ── Identity ──────────────────────────────────────────────────────
-  businessName: "Example Co", // TODO(client)
-  legalName: "Example Company LLC", // TODO(client) — legal pages + footer
-  /** Hero headline. `emphasis` prints in the accent on its own line. */
-  tagline: "First half of the promise.", // TODO(client)
-  taglineEmphasis: "Second half.", // TODO(client)
+  businessName: "Matt Guidry",
+  legalName: "Matt Guidry", // TODO(client) — swap for the LLC name if he trades under one
+  /** Hero: the name prints first, `taglineEmphasis` under it in signal. */
+  tagline: "Matt Guidry",
+  taglineEmphasis: "Video & Animation",
   subheadline:
-    "One or two sentences naming what the business does, for whom, and where. This is the only paragraph most visitors read.", // TODO(client)
+    "Logo animation, documentary and motion graphics for brands, healthcare teams and local businesses.",
   logoPath: "/brand/logo.svg", // TODO(client) — real logo in public/brand/
-  logoAlt: "Example Co", // TODO(client)
+  logoAlt: "Matt Guidry", // no logo yet: the nav sets the name as a wordmark
 
   /**
    * schema.org type for the LocalBusiness JSON-LD in components/JsonLd.tsx.
@@ -44,37 +44,38 @@ export const client = {
    * wrong specific type is worse than a correct general one, so fall
    * back to "LocalBusiness" rather than guessing.
    */
-  schemaType: "LocalBusiness", // TODO(client)
+  schemaType: "ProfessionalService",
 
   // ── Domain / SEO ──────────────────────────────────────────────────
-  siteUrl: "https://www.example.com", // TODO(client) — no trailing slash
+  siteUrl: "https://mattjyguidry.tv", // no trailing slash; keep linkOnly in scripts/csp.mjs in step
   /**
    * scripts/seo.mjs fails the build if a rendered title exceeds 60
    * characters or a description exceeds 160, because that is roughly
    * where Google truncates. Write to the limit, not past it.
    */
-  metaTitle: "Example Co — What We Do in Springfield", // TODO(client)
+  metaTitle: "Matt Guidry — Video & Animation, Louisiana",
   metaDescription:
-    "One sentence a stranger could read in a search result and know whether to click. Name the service, the area, and the next step.", // TODO(client)
+    "Logo animation, documentary and motion graphics by Matt Guidry. Watch the showreel, then call or send a project brief.",
   ogImagePath: "/brand/og.svg", // TODO(client) — a 1200×630 JPG; most crawlers ignore SVG
 
   // ── Contact ───────────────────────────────────────────────────────
-  phone: "555-555-0100", // TODO(client) — as printed
-  phoneHref: "+15555550100", // TODO(client) — E.164, for tel:/sms: links
+  phone: "337-519-8025",
+  phoneHref: "+13375198025",
   /** Texts. Often the same number, different intent. */
-  smsHref: "+15555550100", // TODO(client)
+  smsHref: "+13375198025",
   /**
    * A second line for urgent work, answered outside office hours.
    * Set both to "" to drop every urgent-line affordance on the site.
    */
   urgentPhone: "", // TODO(client) — optional
   urgentPhoneHref: "", // TODO(client) — optional
-  email: "office@example.com", // TODO(client)
+  email: "mattjyg@gmail.com",
   address: {
-    street: "1 Example Street", // TODO(client)
-    city: "Springfield", // TODO(client)
-    region: "ST", // TODO(client) — two-letter state/province
-    postalCode: "00000", // TODO(client)
+    // Freelance, no public street address. Empty fields drop out of the JSON-LD.
+    street: "",
+    city: "",
+    region: "LA",
+    postalCode: "",
   },
   hours: [
     { days: "Monday – Friday", time: "8am – 5pm" },
@@ -82,7 +83,7 @@ export const client = {
     { days: "Sunday", time: "Closed" },
   ], // TODO(client)
   /** Short form of the hours, printed in the utility bar. */
-  hoursShort: "Mon–Fri 8–5", // TODO(client)
+  hoursShort: "Replies same day",
   /**
    * Google Maps embed URL. Maps → Share → Embed a map, and paste ONLY
    * the src attribute value here. Empty string = the map panel is
@@ -150,24 +151,16 @@ export const client = {
    * sake — the first service is the pre-selected one.
    */
   form: {
-    serviceOptions: [
-      "Option one",
-      "Option two",
-      "Option three",
-      "Something else",
-    ], // TODO(client)
-    urgencyOptions: [
-      "Emergency — ASAP",
-      "Within 24 hours",
-      "This week",
-      "This month",
-      "Just planning ahead",
-    ], // TODO(client)
+    /** Chips on the brief form; several can be picked. */
+    serviceOptions: ["Logo animation", "Documentary", "Motion graphics", "Something else"],
+    /** Kept for the template's older request form; the Signal form does not use it. */
+    urgencyOptions: ["As soon as possible", "This month", "Just planning ahead"],
+    budgetOptions: ["Under $1k", "$1k–$3k", "$3k–$8k", "$8k+"],
   },
 
   // ── About band (home page) ────────────────────────────────────────
   about: {
-    heading: "A local shop, not a call center", // TODO(client)
+    heading: "", // unused on the Signal one-pager
     /** 1–3 short paragraphs, in the client's own words. */
     body: [
       "Who the business is, how long it has been doing this, and who actually shows up to do the work.",
@@ -207,34 +200,29 @@ export const client = {
 
   // ── Section copy (headings/CTAs) ──────────────────────────────────
   copy: {
-    utilityBar: "Springfield-based · serving the area since 2019", // TODO(client)
-    heroCta: "Schedule a free assessment", // TODO(client)
-    heroSecondaryCta: "Call the office",
-    heroFacts: [
-      { value: "2019", label: "in business" },
-      { value: "5-year", label: "labor warranty" },
-      { value: "Showroom", label: "in Springfield" },
-      { value: "Financing", label: "available" },
-    ], // TODO(client)
-    navCta: "Free assessment", // TODO(client)
-    servicesHeading: "What we do", // TODO(client)
-    servicesLede: "", // TODO(client)
-    galleryHeading: "Recent work",
-    galleryLede: "", // TODO(client)
-    testimonialsHeading: "Word travels",
-    bookingHeading: "Book a time that works",
-    bookingBlurb:
-      "Pick a slot and we'll confirm by text. Prefer to talk? Call or send the form below.",
-    contactHeading: "Request an assessment", // TODO(client)
+    /** Printed in the footer. */
+    utilityBar: "Louisiana · Available remote",
+    heroCta: "Start a project",
+    heroSecondaryCta: "See the work",
+    heroFacts: [] as { value: string; label: string }[],
+    navCta: "Start a project",
+    servicesHeading: "",
+    servicesLede: "",
+    galleryHeading: "",
+    galleryLede: "",
+    testimonialsHeading: "",
+    bookingHeading: "",
+    bookingBlurb: "",
+    contactEyebrow: "Booking for 2026–27",
+    contactHeading: "Got a story to cut?",
     contactLede:
-      "Tell us where you are and what you're seeing. We'll call to set a time — usually the same business day.", // TODO(client)
-    contactSubmit: "Request my assessment", // TODO(client)
-    contactConfirmation:
-      "Got it. We'll call you at the number you gave to set a time.", // TODO(client)
-    closingHeading: "", // TODO(client)
-    closingBody: "", // TODO(client)
-    footerBlurb: "", // TODO(client)
-    stickyCtaLabel: "Free assessment", // TODO(client)
+      "Tell me what you're making and when it needs to ship. I usually reply the same day.",
+    contactSubmit: "Send project brief",
+    contactConfirmation: "Got it. I'll reply within a day.",
+    closingHeading: "",
+    closingBody: "",
+    footerBlurb: "",
+    stickyCtaLabel: "Start a project",
   },
 } as const;
 

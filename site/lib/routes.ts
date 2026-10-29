@@ -12,7 +12,6 @@
  *  makes the dropdown appear.
  * ════════════════════════════════════════════════════════════════════
  */
-import { getServices } from "./content";
 
 export type RouteNode = {
   href: string;
@@ -47,95 +46,21 @@ export type RouteNode = {
  * this constant, and /contact/ carries every way in — the phone, the
  * urgent line, the request form and the calendar itself.
  */
-export const CTA_HREF = "/contact/";
-
-/**
- * Service pages are generated from content, not listed by hand — a
- * service added to content/services.ts appears in the nav, the
- * sitemap and the breadcrumbs with no second edit.
- */
-const serviceChildren: RouteNode[] = getServices().map((s) => ({
-  href: s.meta.path,
-  label: s.navLabel,
-  live: true,
-  priority: 0.8,
-}));
+export const CTA_HREF = "/#contact";
 
 /**
  * ── THE TREE ────────────────────────────────────────────────────────
  *
- * Five top-level items and a CTA. That is the shape the Nav component
- * is built for; a sixth item wraps on a laptop and the CTA is what
- * gets pushed off.
- *
- * Everything below is a starting point, not a prescription. What must
- * survive editing is the DISCIPLINE: a page exists here or it does not
- * exist, and `live` is the switch that ships it. Do not hand-write a
- * link to a page in a component — if the nav does not know about it,
- * neither does the sitemap, the breadcrumb, or the build-time link
- * check in scripts/routes.mjs.
- *
- * Most children start `live: false`. Flipping one to true is what
- * reveals the dropdown, adds the sitemap entry, drops the noindex and
- * makes the breadcrumb resolve — from this one flag.
+ * Signal is a one-page portfolio, so the nav is three in-page anchors
+ * (SiteNav in components/signal/SiteChrome.tsx keeps it to three).
+ * Anchors stay out of the sitemap; the legal pages below are the only
+ * other routes. A future page goes here with `live` as its switch.
  * ────────────────────────────────────────────────────────────────────
  */
 export const nav: RouteNode[] = [
-  {
-    href: "/services/",
-    label: "Services",
-    live: true,
-    priority: 0.9,
-    children: [...serviceChildren],
-  },
-  {
-    // The gallery is the hub, so this points at a real page rather
-    // than at a band on the home page. When case studies and video
-    // land they become the dropdown and this stays the parent.
-    href: "/gallery/",
-    label: "Our Work",
-    live: true,
-    priority: 0.8,
-    children: [
-      { href: "/case-studies/", label: "Case studies", live: false },
-      { href: "/video/", label: "Video", live: false },
-    ],
-  },
-  {
-    href: "/financing/",
-    label: "Financing",
-    live: false,
-    priority: 0.7,
-    children: [],
-  },
-  {
-    // The parent is a page in its own right, so it is never listed
-    // twice — once as a parent and again as its own child.
-    href: "/about/",
-    label: "About",
-    live: false,
-    priority: 0.7,
-    children: [
-      { href: "/areas/", label: "Areas we serve", live: false, priority: 0.8 },
-      { href: "/reviews/", label: "Reviews", live: false, priority: 0.7 },
-    ],
-  },
-  {
-    href: "/contact/",
-    label: "Contact",
-    live: true,
-    priority: 0.9,
-    // Careers sits here rather than under About: Contact is where
-    // someone goes to reach the business, and applying for a job is
-    // the second reason anybody does.
-    //
-    // Going live does more than reveal the nav item — metadata reads
-    // isLive() to decide noindex, so the page becomes indexable and
-    // enters the sitemap from this one flag.
-    children: [
-      { href: "/careers/", label: "Careers", live: false, priority: 0.5 },
-    ],
-  },
+  { href: "/#reel", label: "Reel", live: true },
+  { href: "/#work", label: "Work", live: true },
+  { href: "/#contact", label: "Contact", live: true },
 ];
 
 /** Routes that exist but are not top-level nav items. */

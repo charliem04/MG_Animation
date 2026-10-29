@@ -55,7 +55,11 @@ export type ContactPayload = {
   service: string;
   /** How soon; empty when the form does not ask */
   urgency: string;
-  /** Free-text detail; optional on the form */
+  /** Rough budget band; empty when not given */
+  budget?: string;
+  /** When the piece needs to ship, in the client's words */
+  neededBy?: string;
+  /** Free-text detail */
   message: string;
   /**
    * Honeypot — must be empty; bots fill it.
@@ -97,7 +101,7 @@ export function contactConfigured(): boolean {
 }
 
 const CALL_INSTEAD =
-  "We couldn't send that. Please call us instead — we don't want to lose your request.";
+  "That didn't send. Please call or email me instead, so your brief doesn't get lost.";
 
 /** Drop empty strings so the notification email has no blank rows. */
 function compact(o: Record<string, string>): Record<string, string> {
@@ -140,6 +144,8 @@ export async function submitContact(
     address: scrub(payload.address, 240),
     service: scrub(payload.service, 120),
     urgency: scrub(payload.urgency, 80),
+    budget: scrub(payload.budget ?? "", 40),
+    needed_by: scrub(payload.neededBy ?? "", 80),
     message: scrub(payload.message, 4000),
   });
 
@@ -196,7 +202,7 @@ export async function submitContact(
         // one field where a stray newline is genuinely header-shaped.
         // Urgency leads, so the office can triage from the inbox list
         // without opening anything: "[Emergency — ASAP] …" sorts itself.
-        subject: `${fields.urgency ? `[${fields.urgency}] ` : ""}Request — ${fields.name ?? ""}`,
+        subject: `Project brief — ${fields.name ?? ""}${fields.service ? ` (${fields.service})` : ""}`,
         from_name: client.businessName,
         ...fields,
         ...meta,
@@ -217,7 +223,7 @@ export async function submitContact(
     return {
       ok: false,
       error:
-        "Couldn't reach the server. Check your connection and try again, or call us.",
+        "Couldn't reach the server. Check your connection and try again, or call me.",
     };
   }
 }

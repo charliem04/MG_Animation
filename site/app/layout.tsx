@@ -1,41 +1,28 @@
 import type { Metadata } from "next";
 /*
- * Faces are self-hosted via Fontsource: bundled at build, no CDN
- * request, no layout shift, and nothing for the CSP to allow — which is
- * why font-src stays 'self' in scripts/csp.mjs.
- *
- * Only the weights actually used are imported. Importing a family
- * wholesale ships eight weights to download five of.
- *
- * TODO(client): swap these imports AND the --font-* stacks in
- * app/globals.css together. Changing one without the other falls back
- * to a system font silently. scripts/fonts.mjs reads the built CSS to
- * find the hashed filenames and injects the preload, so it follows
- * whatever is imported here with no second edit — but it preloads the
- * DISPLAY face by name, so check its PRELOAD pattern after a swap.
- *
- * Only the display face is imported. Body and utility text use system
- * stacks (see --font-body / --font-utility in globals.css): nothing to
- * download, and they read as paperwork rather than as a brand.
+ * Signal's three faces, self-hosted via Fontsource so font-src stays
+ * 'self' in scripts/csp.mjs. Only the weights the design uses.
+ * Swap these AND the --font-* stacks in app/globals.css together;
+ * scripts/fonts.mjs preloads Unbounded 800 (the hero name).
  */
-import "@fontsource/barlow-condensed/latin-600";
-import "@fontsource/barlow-condensed/latin-700";
-import "@fontsource/barlow-condensed/latin-800";
+import "@fontsource/unbounded/latin-500.css";
+import "@fontsource/unbounded/latin-800.css";
+import "@fontsource/instrument-sans/latin-400.css";
+import "@fontsource/instrument-sans/latin-600.css";
+import "@fontsource/jetbrains-mono/latin-400.css";
+import "@fontsource/jetbrains-mono/latin-700.css";
 import "./globals.css";
 import { client } from "@/client.config";
 import { IS_PREVIEW } from "@/lib/preview";
 import { JsonLd } from "@/components/JsonLd";
 import { PreviewBanner } from "@/components/PreviewBanner";
-import { UtilityBar } from "@/components/UtilityBar";
-import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
-import { StickyCTA } from "@/components/StickyCTA";
 import { CookieConsent } from "@/components/CookieConsent";
 import { Analytics } from "@/components/Analytics";
 import { InteractionTracking } from "@/components/InteractionTracking";
-import { CallCard } from "@/components/CallCard";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { PageTransition } from "@/components/PageTransition";
+import { SiteNav, SiteFooter, SplitFilters } from "@/components/signal/SiteChrome";
+import { SignalMotion } from "@/components/signal/SignalMotion";
 
 // Site-level metadata. Individual pages override title/description via
 // their own `metadata` export, built from lib/meta.ts.
@@ -61,8 +48,7 @@ export const metadata: Metadata = {
 
 /**
  * The chrome lives here, not on the home page — every route gets the
- * same utility rail, header, footer and sticky bar, and a new page
- * cannot accidentally ship without them.
+ * same Signal nav and footer, and a new page cannot ship without them.
  */
 export default function RootLayout({
   children,
@@ -113,21 +99,17 @@ export default function RootLayout({
         {/* Renders nothing until the first client-side navigation. */}
         <PageTransition />
         <PreviewBanner />
-        <UtilityBar />
-        <Nav />
-        {/* Clearance for the mobile Call | Text | Book bar lives on the
-            footer, not here. main is not the last thing on the page, so
-            padding here is a 64px stripe of white body ground between
-            the closing CTA band and the dark footer — and it still
-            leaves the footer's own last row behind the bar. */}
-        <main>{children}</main>
-        <Footer />
-        <StickyCTA />
+        <SplitFilters />
+        {/* #sg-screen is what powers on once per visit (SignalMotion). */}
+        <div id="sg-screen">
+          <SiteNav />
+          <main>{children}</main>
+          <SiteFooter />
+        </div>
+        <SignalMotion />
         <CookieConsent />
         <Analytics />
         <InteractionTracking />
-        {/* Renders nothing on a phone, where tel: already works. */}
-        <CallCard />
         <JsonLd />
       </body>
     </html>
