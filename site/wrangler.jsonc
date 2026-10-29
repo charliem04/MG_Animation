@@ -1,0 +1,23 @@
+// Cloudflare Workers deploy for the static site.
+//
+// Cloudflare (Workers & Pages → mg-animation → Settings → Build):
+//   Root directory   site
+//   Build command    npm run build
+//   Deploy command   npx wrangler deploy
+//   Build variables  NEXT_PUBLIC_WEB3FORMS_KEY, NODE_VERSION=20
+//
+// The build writes a static site to ./out; this serves it as-is,
+// including public/_headers (security headers + CSP) and _redirects.
+// "name" must match the Worker's name in the Cloudflare dashboard.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "mg-animation",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./out",
+    // /privacy and /privacy/ both serve privacy/index.html
+    "html_handling": "auto-trailing-slash",
+    // Unknown paths get the Signal 404 page with a real 404 status
+    "not_found_handling": "404-page"
+  }
+}

@@ -11,6 +11,12 @@
         "dev"
       ],
       "port": 3000
+    },
+    {
+      "name": "workers-built",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["wrangler", "dev", "-c", "site/wrangler.jsonc", "--port", "8787"],
+      "port": 8787
     }
   ]
 }
