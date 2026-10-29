@@ -1,0 +1,120 @@
+# Pages CMS — the editor Matt uses at https://app.pagescms.org
+#
+# One screen, "Work", edits site/content/work.json: the showreel link,
+# the ticker words, and each section's cards. Saving commits to main,
+# and Cloudflare Pages rebuilds the site from that commit (~1–2 min).
+#
+# Thumbnails upload to site/public/work/ and are served from /work/.
+# Use a 16:9 still, 1280×720 JPG, under ~200 KB.
+#
+# If a save leaves something the page can't show, the build stops and
+# the last good version stays live. See checkWork() in
+# site/content/work.ts for what it checks.
+
+media:
+  input: site/public/work
+  output: /work
+  extensions: [jpg, jpeg, png, webp]
+
+content:
+  - name: work
+    label: Work
+    description: The showreel, the scrolling words, and every video card on the home page.
+    type: file
+    path: site/content/work.json
+    format: json
+    fields:
+      - name: showreel
+        label: Showreel
+        type: object
+        fields:
+          - name: vimeo
+            label: Vimeo link
+            description: "Vimeo → Share → Copy link. Unlisted links end in a code like /63dcf087a9 — keep it."
+            type: string
+            pattern:
+              regex: '^(https://vimeo\.com/\d+(/[a-f0-9]+)?(\?.*)?)?$'
+              message: Paste the link from Vimeo's Share button, e.g. https://vimeo.com/123456789/abc123def4
+          - name: runtime
+            label: Runtime
+            description: Minutes:seconds, e.g. 0:59
+            type: string
+            required: true
+            pattern:
+              regex: '^\d{1,2}:[0-5]\d$'
+              message: Use minutes:seconds, like 0:59
+          - name: year
+            label: Year
+            type: string
+            required: true
+          - name: poster
+            label: Poster still
+            description: Shown before the muted loop starts. 16:9.
+            type: image
+
+      - name: ticker
+        label: Scrolling words
+        description: The words in the orange-starred banner under the reel.
+        type: string
+        list: true
+
+      - name: categories
+        label: Sections
+        description: Each section is a heading and a sideways row of cards. Drag to reorder.
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: title
+            label: Section title
+            type: string
+            required: true
+          - name: blurb
+            label: One-line description
+            type: string
+            required: true
+          - name: projects
+            label: Videos
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{title} · {runtime}"
+            fields:
+              - name: title
+                label: Title
+                type: string
+                required: true
+              - name: label
+                label: Type
+                description: Small text under the title, e.g. Logo sting, Docu-style.
+                type: string
+                required: true
+              - name: thumb
+                label: Thumbnail
+                description: 16:9 still from the video, 1280×720 JPG.
+                type: image
+                required: true
+              - name: vimeo
+                label: Vimeo link
+                description: "Vimeo → Share → Copy link. Leave empty to show 'Full video coming soon'."
+                type: string
+                pattern:
+                  regex: '^(https://vimeo\.com/\d+(/[a-f0-9]+)?(\?.*)?)?$'
+                  message: Paste the link from Vimeo's Share button, e.g. https://vimeo.com/123456789/abc123def4
+              - name: runtime
+                label: Runtime
+                description: Minutes:seconds, e.g. 1:16
+                type: string
+                required: true
+                pattern:
+                  regex: '^\d{1,2}:[0-5]\d$'
+                  message: Use minutes:seconds, like 1:16
+              - name: format
+                label: Quality
+                type: select
+                required: true
+                options:
+                  values: [4K, HD]

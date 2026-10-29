@@ -13,13 +13,15 @@ export const metadata: Metadata = {
  * Keep this true to what the site actually does. It describes:
  *   · the brief form → Web3Forms → Matt's email (lib/submitContact.ts)
  *   · Vimeo's player, loaded only on play (components/signal/VideoLightbox.tsx)
- *   · Plausible analytics, only after consent (components/Analytics.tsx)
+ *   · Plausible analytics, only after consent and only if
+ *     NEXT_PUBLIC_PLAUSIBLE_DOMAIN is set (components/Analytics.tsx)
  *   · the consent choice in localStorage (lib/consent.ts)
  * Switch on anything else (the lead relay Worker, call tracking, a
  * booking embed) and this page needs a line for it.
  * Not legal advice; have it read before launch if in doubt.
  */
-const EFFECTIVE = "October 28, 2026";
+const EFFECTIVE = "October 29, 2026";
+const ANALYTICS_ON = Boolean(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
 
 export default function PrivacyPage() {
   return (
@@ -57,13 +59,21 @@ export default function PrivacyPage() {
       </p>
 
       <h2>Analytics</h2>
-      <p>
-        If you click Accept on the banner, the site loads Plausible, a
-        privacy-friendly analytics tool that counts page visits. It sets no
-        cookies and doesn&rsquo;t follow you to other sites. If you click
-        Decline, it never loads. Your choice is saved in your browser so the
-        banner doesn&rsquo;t ask again.
-      </p>
+      {ANALYTICS_ON ? (
+        <p>
+          If you click Accept on the banner, the site loads Plausible, a
+          privacy-friendly analytics tool that counts page visits. It sets no
+          cookies and doesn&rsquo;t follow you to other sites. If you click
+          Decline, it never loads. Your choice is saved in your browser so
+          the banner doesn&rsquo;t ask again.
+        </p>
+      ) : (
+        <p>
+          The site doesn&rsquo;t run analytics or set cookies. Cloudflare,
+          which hosts it, keeps standard server logs (such as IP address and
+          the page requested) to run and protect the site.
+        </p>
+      )}
 
       <h2>Your information</h2>
       <p>

@@ -35,15 +35,27 @@ export function JsonLd() {
           postalCode: client.address.postalCode,
         }).filter(([, v]) => v)
       ),
+      addressCountry: "US",
     },
-    areaServed: client.about.towns.map((town) => ({
-      "@type": "City",
-      name: `${town}, ${client.address.region}`,
-    })),
+    // Named towns if the config lists them; otherwise the state and,
+    // since Matt works remote, the country.
+    areaServed: client.about.towns.length
+      ? client.about.towns.map((town) => ({
+          "@type": "City",
+          name: `${town}, ${client.address.region}`,
+        }))
+      : [
+          { "@type": "State", name: "Louisiana" },
+          { "@type": "Country", name: "United States" },
+        ],
+    knowsAbout: ["Logo animation", "Documentary video", "Motion graphics", "Video production"],
+    logo: client.siteUrl + "/icon.png",
     image: client.siteUrl + client.ogImagePath,
     sameAs: [
       client.socials.facebook,
       client.socials.instagram,
+      client.socials.vimeo,
+      client.socials.linkedin,
       client.socials.google,
     ].filter(Boolean),
   };

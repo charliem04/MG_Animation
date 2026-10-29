@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getConsent, setConsent } from "@/lib/consent";
 
+const ANALYTICS_ON = Boolean(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
+
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Only show if no choice has been stored yet
-    setVisible(getConsent() === null);
+    // Only ask when there is something to consent to (analytics is
+    // configured) and no choice has been stored yet.
+    setVisible(ANALYTICS_ON && getConsent() === null);
   }, []);
 
   if (!visible) return null;

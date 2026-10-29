@@ -55,8 +55,8 @@ export const client = {
    */
   metaTitle: "Matt Guidry — Video & Animation, Louisiana",
   metaDescription:
-    "Logo animation, documentary and motion graphics by Matt Guidry. Watch the showreel, then call or send a project brief.",
-  ogImagePath: "/brand/og.svg", // TODO(client) — a 1200×630 JPG; most crawlers ignore SVG
+    "Logo animation, documentary and motion graphics by Matt Guidry, a Louisiana video producer. Watch the showreel, then send a project brief.",
+  ogImagePath: "/brand/og.jpg", // 1200×630, made from the reel poster in the Signal style
 
   // ── Contact ───────────────────────────────────────────────────────
   phone: "337-519-8025",
@@ -139,6 +139,9 @@ export const client = {
      */
     facebookReviews: "",
     instagram: "",
+    /** Matt's Vimeo profile; also listed in the JSON-LD sameAs. */
+    vimeo: "https://vimeo.com/user22033747",
+    linkedin: "",
     /** Leaves a review. Get it from the Google Business Profile. */
     google: "",
   },
