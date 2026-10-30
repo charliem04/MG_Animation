@@ -536,16 +536,16 @@ html {
    it. The band's letters jitter inside the band and flare brighter
    with a wider RGB split; nothing is drawn outside the letters. Every
    clip moves on the same linear timeline, so the seams never show.
-   One pass takes ~1.9s of a 6s loop; the rest of the time the h1
-   alone shows the heading, clean.
+   One slow pass takes ~5.5s of a 10s loop; the rest of the time the
+   h1 alone shows the heading, clean.
 
    Geometry (% of the heading box): the band's bottom edge travels from
-   x = -26% to 106%, its top edge sits 14% further right (the lean),
-   and it's 6% wide. Points run past the box (-40%..140% tall,
+   x = -22.5% to 106%, its top edge sits 14% further right (the lean),
+   and it's a thin 2.5% wide. Points run past the box (-40%..140% tall,
    -30%..130% wide) so glows are never trimmed. */
 .sg-trk {
   position: relative;
-  --trk-time: 6s;
+  --trk-time: 10s;
   --trk-delay: 1.3s;
 }
 .sg-trk-copy {
@@ -580,55 +580,70 @@ html {
 }
 @keyframes sg-trk-left {
   0% {
-    clip-path: polygon(-30% -40%, -12% -40%, -26% 140%, -30% 140%);
+    clip-path: polygon(-30% -40%, -8.5% -40%, -22.5% 140%, -30% 140%);
   }
-  32%,
+  55%,
   100% {
     clip-path: polygon(-30% -40%, 120% -40%, 106% 140%, -30% 140%);
   }
 }
 @keyframes sg-trk-band {
   0% {
-    clip-path: polygon(-12% -40%, -6% -40%, -20% 140%, -26% 140%);
+    clip-path: polygon(-8.5% -40%, -6% -40%, -20% 140%, -22.5% 140%);
   }
-  32%,
+  55%,
   100% {
-    clip-path: polygon(120% -40%, 126% -40%, 112% 140%, 106% 140%);
+    clip-path: polygon(120% -40%, 122.5% -40%, 108.5% 140%, 106% 140%);
   }
 }
 @keyframes sg-trk-right {
   0% {
     clip-path: polygon(-6% -40%, 130% -40%, 130% 140%, -20% 140%);
   }
-  32%,
+  55%,
   100% {
-    clip-path: polygon(126% -40%, 130% -40%, 130% 140%, 112% 140%);
+    clip-path: polygon(122.5% -40%, 130% -40%, 130% 140%, 108.5% 140%);
   }
 }
 /* Tape jitter: the band's letters snap between small offsets. */
 @keyframes sg-trk-shove {
   0% {
-    transform: translate(0.05em, -0.06em);
+    transform: translate(0.03em, -0.04em);
   }
-  5% {
-    transform: translate(-0.04em, 0.05em);
+  4.6% {
+    transform: translate(-0.025em, 0.035em);
   }
-  9% {
-    transform: translate(0.07em, 0.02em);
+  9.2% {
+    transform: translate(0.04em, 0.01em);
   }
-  14% {
-    transform: translate(-0.02em, -0.07em);
+  13.8% {
+    transform: translate(-0.01em, -0.045em);
   }
-  18% {
-    transform: translate(0.06em, 0.06em);
+  18.3% {
+    transform: translate(0.035em, 0.04em);
   }
-  23% {
-    transform: translate(-0.05em, -0.03em);
+  22.9% {
+    transform: translate(-0.03em, -0.02em);
   }
-  28% {
-    transform: translate(0.03em, 0.05em);
+  27.5% {
+    transform: translate(0.02em, 0.035em);
   }
-  32%,
+  32.1% {
+    transform: translate(-0.035em, 0.015em);
+  }
+  36.7% {
+    transform: translate(0.025em, -0.03em);
+  }
+  41.2% {
+    transform: translate(-0.015em, 0.04em);
+  }
+  45.8% {
+    transform: translate(0.03em, -0.01em);
+  }
+  50.4% {
+    transform: translate(-0.02em, 0.025em);
+  }
+  55%,
   100% {
     transform: none;
   }
