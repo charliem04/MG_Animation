@@ -1,15 +1,17 @@
 # Pages CMS — the editor Matt uses at https://app.pagescms.org
 #
-# One screen, "Work", edits site/content/work.json: the showreel link,
-# the ticker words, and each section's cards. Saving commits to main,
-# and Cloudflare Pages rebuilds the site from that commit (~1–2 min).
+# Two screens. "Work" edits site/content/work.json: the showreel link,
+# the ticker words, and each section's cards. "About" edits
+# site/content/about.json. Saving commits to main,
+# and Cloudflare rebuilds the site from that commit (~1–2 min).
 #
-# Thumbnails upload to site/public/work/ and are served from /work/.
-# Use a 16:9 still, 1280×720 JPG, under ~200 KB.
+# Images (thumbnails and the headshot) upload to site/public/work/
+# and are served from /work/.
+# Thumbnails: a 16:9 still, 1280×720 JPG, under ~200 KB.
 #
 # If a save leaves something the page can't show, the build stops and
-# the last good version stays live. See checkWork() in
-# site/content/work.ts for what it checks.
+# the last good version stays live. See
+# site/content/work.ts and site/content/about.ts for what they check.
 
 media:
   input: site/public/work
@@ -118,3 +120,40 @@ content:
                 required: true
                 options:
                   values: [4K, HD]
+
+  - name: about
+    label: About
+    description: The About section on the home page — headshot, name, title and your own words.
+    type: file
+    path: site/content/about.json
+    format: json
+    fields:
+      - name: heading
+        label: Heading
+        description: The big line at the top of the section, e.g. Behind the edit.
+        type: string
+        required: true
+      - name: body
+        label: Paragraphs
+        description: Two or three short paragraphs work best. Drag to reorder.
+        type: text
+        list: true
+        required: true
+      - name: headshot
+        label: Headshot
+        description: A portrait photo, 4:5 (e.g. 960×1200 JPG), under ~300 KB.
+        type: image
+        required: true
+      - name: headshotAlt
+        label: Headshot description
+        description: For screen readers, e.g. Matt Guidry holding a camera on set.
+        type: string
+      - name: name
+        label: Name
+        description: Shown under the headshot.
+        type: string
+        required: true
+      - name: title
+        label: Title
+        description: Shown under the name, e.g. Video Producer & Animator.
+        type: string

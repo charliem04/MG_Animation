@@ -159,6 +159,13 @@ export const client = {
     /** Kept for the template's older request form; the Signal form does not use it. */
     urgencyOptions: ["As soon as possible", "This month", "Just planning ahead"],
     budgetOptions: ["Under $1k", "$1k–$3k", "$3k–$8k", "$8k+"],
+    /**
+     * "Needed by" chips on the brief form; one can be picked. The form
+     * adds a last chip, timelineCustomLabel, that opens a text box for
+     * a specific date or deadline.
+     */
+    timelineOptions: ["ASAP (1–2 weeks)", "Within a month", "1–3 months", "3+ months", "Flexible"],
+    timelineCustomLabel: "Specific date",
   },
 
   // ── About band (home page) ────────────────────────────────────────

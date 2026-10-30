@@ -1,13 +1,21 @@
 "use client";
 
 /**
- * The three category sections, each a display head with a one-line
- * blurb over a sideways-scrolling rail of ProjectCards. A card opens
- * its video in the lightbox on this page.
+ * The category sections, each a display head with a one-line blurb
+ * over its ProjectCards. A card opens its video in the lightbox on
+ * this page.
+ *
+ * Up to three videos sit in a row at a fixed size. A fourth turns the
+ * section into a looping carousel (WorkCarousel) with arrows and dots,
+ * so adding videos in the CMS never shrinks the cards.
  */
 import { useCallback, useState } from "react";
 import { categories, vimeoEmbed, type Project } from "@/content/work";
 import { VideoLightbox, type LightboxItem } from "./VideoLightbox";
+import { WorkCarousel } from "./WorkCarousel";
+
+/** More videos than this and the section becomes a carousel. */
+const ROW_MAX = 3;
 
 function ProjectCard({ p, onOpen }: { p: Project; onOpen: (p: Project) => void }) {
   return (
@@ -50,13 +58,23 @@ export function WorkSections() {
             <h2 id={`cat-${cat.id}`}>{cat.title}</h2>
             <p>{cat.blurb}</p>
           </div>
-          <ul className="sg-rail">
-            {cat.projects.map((p) => (
-              <li key={p.title}>
-                <ProjectCard p={p} onOpen={onOpen} />
-              </li>
-            ))}
-          </ul>
+          {cat.projects.length > ROW_MAX ? (
+            <WorkCarousel
+              items={cat.projects}
+              label={cat.title}
+              itemKey={(p) => p.title}
+              itemLabel={(p) => p.title}
+              render={(p) => <ProjectCard p={p} onOpen={onOpen} />}
+            />
+          ) : (
+            <ul className="sg-rail">
+              {cat.projects.map((p) => (
+                <li key={p.title}>
+                  <ProjectCard p={p} onOpen={onOpen} />
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       ))}
       <VideoLightbox item={open} onClose={close} />

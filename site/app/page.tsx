@@ -1,6 +1,7 @@
 import { ReelHero } from "@/components/signal/ReelHero";
 import { Ticker } from "@/components/signal/Ticker";
 import { WorkSections } from "@/components/signal/WorkSections";
+import { AboutSection } from "@/components/signal/AboutSection";
 import { SignalContact } from "@/components/signal/SignalContact";
 
 /**
@@ -12,11 +13,12 @@ import { SignalContact } from "@/components/signal/SignalContact";
  *  brief. The order is fixed by the design system:
  *
  *    nav → hero (name + meta, then the reel full width) → ticker →
- *    three category sections → contact → footer
+ *    category sections → about → contact → footer
  *
  *  Nav and footer live in app/layout.tsx. Everything editable is in
  *  content/work.ts (reel, categories, projects, ticker) and
- *  client.config.ts (name, contact, copy).
+ *  content/about.ts (about section) and client.config.ts (name,
+ *  contact, copy).
  * ════════════════════════════════════════════════════════════════════
  */
 export default function Home() {
@@ -25,6 +27,7 @@ export default function Home() {
       <ReelHero />
       <Ticker />
       <WorkSections />
+      <AboutSection />
       <SignalContact />
     </>
   );

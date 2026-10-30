@@ -51,8 +51,8 @@ export const CTA_HREF = "/#contact";
 /**
  * ── THE TREE ────────────────────────────────────────────────────────
  *
- * Signal is a one-page portfolio, so the nav is three in-page anchors
- * (SiteNav in components/signal/SiteChrome.tsx keeps it to three).
+ * Signal is a one-page portfolio, so the nav is in-page anchors plus
+ * the Call now button (SiteNav in components/signal/SiteChrome.tsx).
  * Anchors stay out of the sitemap; the legal pages below are the only
  * other routes. A future page goes here with `live` as its switch.
  * ────────────────────────────────────────────────────────────────────
@@ -60,6 +60,7 @@ export const CTA_HREF = "/#contact";
 export const nav: RouteNode[] = [
   { href: "/#reel", label: "Reel", live: true },
   { href: "/#work", label: "Work", live: true },
+  { href: "/#about", label: "About", live: true },
   { href: "/#contact", label: "Contact", live: true },
 ];
 
