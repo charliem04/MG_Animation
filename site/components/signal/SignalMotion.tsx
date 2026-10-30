@@ -1,24 +1,19 @@
 "use client";
 
 /**
- * Signal's two orchestrated moves, armed only once JavaScript runs so a
- * failed bundle never leaves anything hidden:
- *   - power-on: the page opens from a 1px line, once per load
- *   - slice wipe: each [data-wipe] section below the fold wipes in
- *     horizontally as it enters, and its heading jitters a frame
- * Both are skipped under prefers-reduced-motion.
+ * The slice wipe: each [data-wipe] section below the fold wipes in
+ * horizontally as it enters, and its heading jitters a frame. Armed
+ * only once JavaScript runs, so a failed bundle never leaves anything
+ * hidden, and skipped under prefers-reduced-motion.
+ *
+ * The power-on (the page opening from a 1px line) isn't here: it has
+ * to start before the first paint, so it's a script in app/layout.tsx.
  */
 import { useEffect } from "react";
 
 export function SignalMotion() {
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const root = document.getElementById("sg-screen");
-    if (root && !sessionStorageSeen()) {
-      root.classList.add("sg-power");
-      root.addEventListener("animationend", () => root.classList.remove("sg-power"), { once: true });
-    }
 
     const targets = Array.from(document.querySelectorAll<HTMLElement>("[data-wipe]")).filter(
       (el) => el.getBoundingClientRect().top > window.innerHeight
@@ -53,15 +48,4 @@ export function SignalMotion() {
     };
   }, []);
   return null;
-}
-
-/** Power-on plays once per visit, not on every client-side navigation. */
-function sessionStorageSeen(): boolean {
-  try {
-    if (sessionStorage.getItem("sg-powered")) return true;
-    sessionStorage.setItem("sg-powered", "1");
-  } catch {
-    /* storage blocked: just play it */
-  }
-  return false;
 }

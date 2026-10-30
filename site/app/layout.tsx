@@ -47,6 +47,19 @@ export const metadata: Metadata = {
 };
 
 /**
+ * Starts the power-on before the first frame is drawn. It runs in
+ * <head>, ahead of the page, so the browser's very first paint is
+ * already the 1px line; started from React instead, the finished page
+ * flashes up first and then snaps to the line.
+ *
+ * Plays once per visit and never under reduced motion. Removing the
+ * class when the animation ends puts #sg-screen back to normal (an
+ * element with a transform animation traps position: fixed children).
+ * If this script doesn't run, nothing is hidden: the page just shows.
+ */
+const POWER_ON = `(function(){var d=document.documentElement,seen=false;try{seen=!!sessionStorage.getItem("sg-powered");sessionStorage.setItem("sg-powered","1")}catch(e){}if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("sg-boot");document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;d.classList.remove("sg-boot");document.removeEventListener("animationend",f)})})();`;
+
+/**
  * The chrome lives here, not on the home page — every route gets the
  * same Signal nav and footer, and a new page cannot ship without them.
  */
@@ -54,7 +67,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: POWER_ON adds a class to <html> before
+    // React loads, which React would otherwise report as a mismatch.
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: POWER_ON }} />
+      </head>
       <body>
         {/*
           Framer serializes an animation's starting state into the HTML,
@@ -100,7 +118,7 @@ export default function RootLayout({
         <PageTransition />
         <PreviewBanner />
         <SplitFilters />
-        {/* #sg-screen is what powers on once per visit (SignalMotion). */}
+        {/* #sg-screen is what powers on once per visit (POWER_ON above). */}
         <div id="sg-screen">
           <SiteNav />
           <main>{children}</main>

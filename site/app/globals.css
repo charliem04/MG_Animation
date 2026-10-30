@@ -1200,10 +1200,12 @@ textarea.sg-input {
 }
 
 /* ══ MOTION ══════════════════════════════════════════════════════════
-   Power-on once per load; sections slice-wipe in; display headings
-   jitter 1–2 frames then settle. Elements are only armed by
-   components/signal/SignalMotion.tsx, so with no JS nothing is hidden. */
-.sg-power {
+   Power-on once per visit; sections slice-wipe in; display headings
+   jitter 1–2 frames then settle. The power-on is switched on by a tiny
+   script in <head> (app/layout.tsx) so it starts on the first frame;
+   the wipes are armed by components/signal/SignalMotion.tsx. With no
+   JS nothing is hidden. */
+.sg-boot #sg-screen {
   transform-origin: center 30vh;
   animation: sg-power var(--duration-slow) var(--ease-out) both;
 }
@@ -1249,7 +1251,7 @@ textarea.sg-input {
 
 /* Keep the glows; drop the power-on, wipes, jitter, ticker and roll. */
 @media (prefers-reduced-motion: reduce) {
-  .sg-power,
+  .sg-boot #sg-screen,
   .sg-ticker-track,
   .sg-roll,
   .sg-rec::before,
