@@ -1200,8 +1200,8 @@ textarea.sg-input {
 }
 
 /* ══ MOTION ══════════════════════════════════════════════════════════
-   Power-on once per visit; sections slice-wipe in; display headings
-   jitter 1–2 frames then settle. The power-on is switched on by a tiny
+   Power-on once per visit; sections slice-wipe in behind a scan line;
+   display headings glitch as the line passes, then settle. The power-on is switched on by a tiny
    script in <head> (app/layout.tsx) so it starts on the first frame;
    the wipes are armed by components/signal/SignalMotion.tsx. With no
    JS nothing is hidden. */
@@ -1227,24 +1227,84 @@ textarea.sg-input {
     filter: none;
   }
 }
+/* Slice wipe. A section enters by being uncovered left to right over
+   about a second, with a glowing orange scan line riding the leading
+   edge and a soft trail behind it; the heading glitches (RGB split)
+   as the line passes it. The clip only exists while it plays, so it
+   never trims glows or focus rings afterwards. */
+[data-wipe] {
+  --wipe-time: 1000ms;
+  --wipe-ease: cubic-bezier(0.65, 0, 0.25, 1);
+  position: relative;
+}
 [data-wipe].sg-armed {
   clip-path: inset(0 100% 0 0);
 }
 [data-wipe].sg-in {
-  clip-path: inset(0 0 0 0);
-  transition: clip-path var(--duration-fast) var(--ease-out);
+  animation: sg-wipe var(--wipe-time) var(--wipe-ease) backwards;
 }
-[data-wipe].sg-in h2 {
-  animation: sg-jitter 120ms var(--ease-step) 1;
-}
-@keyframes sg-jitter {
-  0% {
-    transform: translate(2px, -1px);
+@keyframes sg-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
   }
-  50% {
-    transform: translate(-2px, 1px);
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+[data-wipe].sg-in::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: clamp(60px, 12vw, 160px);
+  z-index: 10;
+  pointer-events: none;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 77, 31, calc(0.22 * var(--fx))) 70%,
+    rgba(255, 140, 100, 0.9) calc(100% - 3px),
+    #fff2ec 100%
+  );
+  box-shadow: 4px 0 calc(var(--fx) * 22px) rgba(255, 77, 31, 0.7);
+  animation: sg-wipe-edge var(--wipe-time) var(--wipe-ease) forwards;
+}
+@keyframes sg-wipe-edge {
+  0% {
+    left: 0;
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
   }
   100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+[data-wipe].sg-in h2 {
+  animation: sg-glitch 420ms steps(1) 220ms backwards;
+}
+@keyframes sg-glitch {
+  0% {
+    transform: translate(4px, -2px);
+    text-shadow: -5px 0 rgba(255, 77, 31, 0.95), 5px 0 rgba(111, 155, 255, 0.95);
+  }
+  20% {
+    transform: translate(-4px, 2px);
+    text-shadow: 5px 0 rgba(255, 77, 31, 0.95), -5px 0 rgba(111, 155, 255, 0.95);
+  }
+  40% {
+    transform: translate(2px, 1px);
+    text-shadow: -3px 0 rgba(255, 77, 31, 0.9), 3px 0 rgba(111, 155, 255, 0.9);
+  }
+  60% {
+    transform: translate(-1px, 0);
+    text-shadow: 2px 0 rgba(255, 77, 31, 0.8), -2px 0 rgba(111, 155, 255, 0.8);
+  }
+  80% {
     transform: none;
   }
 }
@@ -1257,6 +1317,12 @@ textarea.sg-input {
   .sg-rec::before,
   [data-wipe].sg-in h2 {
     animation: none !important;
+  }
+  [data-wipe].sg-in {
+    animation: none !important;
+  }
+  [data-wipe].sg-in::before {
+    display: none;
   }
   [data-wipe].sg-armed {
     clip-path: none;

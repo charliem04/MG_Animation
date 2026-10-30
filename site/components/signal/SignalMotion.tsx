@@ -2,7 +2,8 @@
 
 /**
  * The slice wipe: each [data-wipe] section below the fold wipes in
- * horizontally as it enters, and its heading jitters a frame. Armed
+ * left to right behind a glowing scan line as it comes up the screen,
+ * and its heading glitches as the line passes (styles in globals.css). Armed
  * only once JavaScript runs, so a failed bundle never leaves anything
  * hidden, and skipped under prefers-reduced-motion.
  *
@@ -29,7 +30,9 @@ export function SignalMotion() {
     let raf = 0;
     const check = () => {
       raf = 0;
-      const line = window.innerHeight * 0.88;
+      // Fire once the section's top is a fifth of the way up the screen,
+      // so the wipe plays where people are looking, not at the very edge.
+      const line = window.innerHeight * 0.8;
       pending = pending.filter((el) => {
         if (el.getBoundingClientRect().top > line) return true;
         el.classList.remove("sg-armed");
