@@ -56,8 +56,11 @@ export const metadata: Metadata = {
  * class when the animation ends puts #sg-screen back to normal (an
  * element with a transform animation traps position: fixed children).
  * If this script doesn't run, nothing is hidden: the page just shows.
+ *
+ * It also marks <html> with "js", which the phone menu uses to fold the
+ * nav links away only when the Menu button can open them again.
  */
-const POWER_ON = `(function(){var d=document.documentElement,seen=false;try{seen=!!sessionStorage.getItem("sg-powered");sessionStorage.setItem("sg-powered","1")}catch(e){}if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("sg-boot");document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;d.classList.remove("sg-boot");document.removeEventListener("animationend",f)})})();`;
+const POWER_ON = `(function(){var d=document.documentElement,seen=false;d.classList.add("js");try{seen=!!sessionStorage.getItem("sg-powered");sessionStorage.setItem("sg-powered","1")}catch(e){}if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("sg-boot");document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;d.classList.remove("sg-boot");document.removeEventListener("animationend",f)})})();`;
 
 /**
  * The chrome lives here, not on the home page — every route gets the

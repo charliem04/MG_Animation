@@ -8,14 +8,38 @@
  * Up to three videos sit in a row at a fixed size. A fourth turns the
  * section into a looping carousel (WorkCarousel) with arrows and dots,
  * so adding videos in the CMS never shrinks the cards.
+ *
+ * Narrower screens fit fewer cards (two on tablets, one on phones), so
+ * there a section becomes a carousel as soon as it has more videos
+ * than fit. The page first renders the desktop rows, then switches
+ * once it knows the screen width.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { categories, vimeoEmbed, type Project } from "@/content/work";
 import { VideoLightbox, type LightboxItem } from "./VideoLightbox";
 import { WorkCarousel } from "./WorkCarousel";
 
-/** More videos than this and the section becomes a carousel. */
-const ROW_MAX = 3;
+/**
+ * How many cards fit side by side. Matches the --per breakpoints on
+ * .sg-carousel in globals.css. More videos than this and the section
+ * becomes a carousel.
+ */
+function usePerView(): number {
+  const [per, setPer] = useState(3);
+  useEffect(() => {
+    const phone = matchMedia("(max-width: 520px)");
+    const tablet = matchMedia("(max-width: 820px)");
+    const update = () => setPer(phone.matches ? 1 : tablet.matches ? 2 : 3);
+    update();
+    phone.addEventListener("change", update);
+    tablet.addEventListener("change", update);
+    return () => {
+      phone.removeEventListener("change", update);
+      tablet.removeEventListener("change", update);
+    };
+  }, []);
+  return per;
+}
 
 function ProjectCard({ p, onOpen }: { p: Project; onOpen: (p: Project) => void }) {
   return (
@@ -43,6 +67,7 @@ function ProjectCard({ p, onOpen }: { p: Project; onOpen: (p: Project) => void }
 
 export function WorkSections() {
   const [open, setOpen] = useState<LightboxItem | null>(null);
+  const perView = usePerView();
   const close = useCallback(() => setOpen(null), []);
   const onOpen = useCallback(
     (p: Project) =>
@@ -58,7 +83,7 @@ export function WorkSections() {
             <h2 id={`cat-${cat.id}`}>{cat.title}</h2>
             <p>{cat.blurb}</p>
           </div>
-          {cat.projects.length > ROW_MAX ? (
+          {cat.projects.length > perView ? (
             <WorkCarousel
               items={cat.projects}
               label={cat.title}

@@ -318,26 +318,132 @@ html {
   width: 14px;
   height: 14px;
 }
-/* Phones: name and Call now on the first row, the anchors under them. */
+.sg-menu-btn {
+  display: none;
+}
+/* Phones: one slim row (name, Call now, Menu). The anchors fold into a
+   panel under the bar that the Menu button opens. Folding only happens
+   under html.js, so without JavaScript the links stay on show. */
 @media (max-width: 640px) {
   .sg-nav {
-    flex-wrap: wrap;
-    row-gap: var(--space-3);
-    padding-block: var(--space-3);
+    padding-block: 10px;
+    gap: var(--space-3);
   }
   .sg-nav-right {
+    gap: var(--space-2);
+  }
+  .sg-nav-mark {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .sg-nav-call.sg-btn {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 11px;
+  }
+  html.js .sg-menu-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    color: var(--ink-hex);
+    background: transparent;
+    border: 1px solid var(--line-control);
+    cursor: pointer;
+  }
+  .sg-menu-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--ring-focus);
+  }
+  .sg-menu-icon {
+    position: relative;
+    width: 18px;
+    height: 10px;
+  }
+  .sg-menu-icon span {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: currentColor;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+  .sg-menu-icon span:first-child {
+    transform: translateY(-4px);
+  }
+  .sg-menu-icon span:last-child {
+    transform: translateY(4px);
+  }
+  .sg-navbar[data-menu-open] .sg-menu-icon span:first-child {
+    transform: rotate(45deg);
+  }
+  .sg-navbar[data-menu-open] .sg-menu-icon span:last-child {
+    transform: rotate(-45deg);
+  }
+  .sg-navbar[data-menu-open] .sg-menu-btn {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+
+  /* No JS: the links sit in their own row under the name. */
+  html:not(.js) .sg-nav {
+    flex-wrap: wrap;
+  }
+  html:not(.js) .sg-nav-right {
     display: contents;
   }
-  .sg-nav-right nav {
+  html:not(.js) .sg-nav-menu {
     order: 3;
     flex-basis: 100%;
   }
-  .sg-nav-links {
+  html:not(.js) .sg-nav-links {
     justify-content: space-between;
   }
-  .sg-nav-call.sg-btn {
-    padding: 10px 12px;
-    font-size: 11px;
+
+  /* JS: the links become a drop-down panel under the bar. */
+  html.js .sg-nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: none;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line-hex);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  }
+  html.js .sg-navbar[data-menu-open] .sg-nav-menu {
+    display: block;
+    animation: sg-menu-in var(--duration-fast) var(--ease-out);
+  }
+  html.js .sg-nav-links {
+    flex-direction: column;
+    gap: 0;
+    padding: var(--space-2) max(var(--space-4), env(safe-area-inset-left, 0px)) var(--space-4);
+  }
+  html.js .sg-nav-links a {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    font-size: 14px;
+    color: var(--ink-hex);
+    border-bottom: 1px solid var(--line-hex);
+  }
+  html.js .sg-nav-links li:last-child a {
+    border-bottom: 0;
+  }
+  html.js .sg-nav-links a::after {
+    content: "→";
+    margin-left: auto;
+    color: var(--signal);
+  }
+}
+@keyframes sg-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
   }
 }
 
@@ -1330,5 +1436,35 @@ textarea.sg-input {
   .sg-card,
   .sg-card * {
     transition-duration: 1ms !important;
+  }
+}
+
+/* ══ PHONES ══════════════════════════════════════════════════════════
+   Tuned for the three most common phone widths: 360px (most Android),
+   390px (iPhone 12–15) and 430px (iPhone Plus / Pro Max). Thumbs need
+   ~44px to hit something reliably, so tappable bits grow here. */
+@media (max-width: 520px) {
+  /* Scales from 34px on a 360px phone to ~41px on a 430px one. */
+  .sg-hero-name {
+    font-size: clamp(34px, 9.6vw, 44px);
+  }
+  /* A headshot, not a poster: leave room to see the words beside it. */
+  .sg-about-fig {
+    max-width: 240px;
+  }
+  .sg-chip b {
+    padding: 13px 14px;
+  }
+  .sg-dot {
+    width: 34px;
+    height: 34px;
+  }
+  .sg-foot {
+    row-gap: var(--space-2);
+  }
+  .sg-foot a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 }

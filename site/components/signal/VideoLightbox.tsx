@@ -34,6 +34,8 @@ export function VideoLightbox({
     const opener = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
     document.body.style.overflow = "hidden";
+    // Tells SignalMotion to hold the section wipes while a video is up.
+    document.documentElement.setAttribute("data-video-open", "");
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -50,6 +52,7 @@ export function VideoLightbox({
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
+      document.documentElement.removeAttribute("data-video-open");
       opener?.focus();
     };
   }, [item, onClose]);

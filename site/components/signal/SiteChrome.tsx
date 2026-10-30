@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { client } from "@/client.config";
 import { auxRoutes, nav } from "@/lib/routes";
+import { NavMenuButton } from "./NavMenuButton";
 
 /**
  * Top bar: the name as the wordmark (no logo yet, so none is drawn),
  * the in-page anchors and a Call now button that dials Matt's phone.
  * Sticks on scroll, on bg with a line rule.
+ *
+ * On phones it's one slim row (name, Call now, Menu) and the anchors
+ * fold into a panel the Menu button opens (NavMenuButton).
  */
 export function SiteNav() {
   return (
@@ -15,7 +19,7 @@ export function SiteNav() {
           {client.businessName}
         </Link>
         <div className="sg-nav-right">
-          <nav aria-label="Sections">
+          <nav id="site-menu" className="sg-nav-menu" aria-label="Sections">
             <ul className="sg-nav-links">
               {nav
                 .filter((n) => n.live)
@@ -36,6 +40,7 @@ export function SiteNav() {
             </svg>
             Call now
           </a>
+          <NavMenuButton controls="site-menu" />
         </div>
       </div>
     </header>
