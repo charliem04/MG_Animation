@@ -530,142 +530,7 @@ html {
   display: block;
   color: var(--signal);
 }
-/* VHS tracking glitch. Three stacked copies of the heading, each
-   clipped to one side of a diagonal scan band ( / ) that slides left
-   to right: the h1 left of it, the band itself, and a copy right of
-   it. The band's letters jitter inside the band and turn a cool
-   phosphor white with a blue glow; nothing is drawn outside the letters. Every
-   clip moves on the same linear timeline, so the seams never show.
-   One slow pass takes ~9s of a 14s loop; the rest of the time the
-   h1 alone shows the heading, clean.
 
-   Geometry (% of the heading box): the band's bottom edge travels from
-   x = -15.6% to 106%, its top edge sits 9% further right (the lean),
-   and it's a hairline 0.6% wide. Points run past the box (-40%..140% tall,
-   -30%..130% wide) so glows are never trimmed. */
-.sg-trk {
-  position: relative;
-  --trk-time: 14s;
-  --trk-delay: 1.3s;
-}
-.sg-trk-copy {
-  position: absolute;
-  inset: 0;
-  font-family: var(--font-display);
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--ink-hex);
-  pointer-events: none;
-  user-select: none;
-}
-.sg-trk-base {
-  animation: sg-trk-left var(--trk-time) linear var(--trk-delay) infinite backwards;
-}
-/* The line's letters turn a cool phosphor white with a blue glow, on
-   both lines (the orange second line included), keeping the red/blue
-   split at the edges. */
-.sg-trk-band,
-.sg-trk-band .sg-l2 {
-  color: #eef2ff;
-}
-.sg-trk-band {
-  animation: sg-trk-band var(--trk-time) linear var(--trk-delay) infinite backwards;
-  text-shadow:
-    calc(var(--fx) * -4px) 0 rgba(255, 77, 31, 0.9),
-    calc(var(--fx) * 4px) 0 rgba(111, 155, 255, 0.95),
-    0 0 calc(var(--fx) * 18px) rgba(140, 175, 255, 0.85);
-}
-/* The letters move inside the band, so the band's edges stay put and
-   no gap ever opens between it and its neighbours. */
-.sg-trk-shift {
-  display: block;
-  animation: sg-trk-shove var(--trk-time) steps(1) var(--trk-delay) infinite backwards;
-}
-.sg-trk-right {
-  animation: sg-trk-right var(--trk-time) linear var(--trk-delay) infinite backwards;
-}
-@keyframes sg-trk-left {
-  0% {
-    clip-path: polygon(-30% -40%, -6.6% -40%, -15.6% 140%, -30% 140%);
-  }
-  64%,
-  100% {
-    clip-path: polygon(-30% -40%, 115% -40%, 106% 140%, -30% 140%);
-  }
-}
-@keyframes sg-trk-band {
-  0% {
-    clip-path: polygon(-6.6% -40%, -6% -40%, -15% 140%, -15.6% 140%);
-  }
-  64%,
-  100% {
-    clip-path: polygon(115% -40%, 115.6% -40%, 106.6% 140%, 106% 140%);
-  }
-}
-@keyframes sg-trk-right {
-  0% {
-    clip-path: polygon(-6% -40%, 130% -40%, 130% 140%, -15% 140%);
-  }
-  64%,
-  100% {
-    clip-path: polygon(115.6% -40%, 130% -40%, 130% 140%, 106.6% 140%);
-  }
-}
-/* Tape jitter: the band's letters snap between small offsets. */
-@keyframes sg-trk-shove {
-  0% {
-    transform: translate(0.03em, -0.04em);
-  }
-  4% {
-    transform: translate(-0.025em, 0.035em);
-  }
-  8% {
-    transform: translate(0.04em, 0.01em);
-  }
-  12% {
-    transform: translate(-0.01em, -0.045em);
-  }
-  16% {
-    transform: translate(0.035em, 0.04em);
-  }
-  20% {
-    transform: translate(-0.03em, -0.02em);
-  }
-  24% {
-    transform: translate(0.02em, 0.035em);
-  }
-  28% {
-    transform: translate(-0.035em, 0.015em);
-  }
-  32% {
-    transform: translate(0.025em, -0.03em);
-  }
-  36% {
-    transform: translate(-0.015em, 0.04em);
-  }
-  40% {
-    transform: translate(0.03em, -0.01em);
-  }
-  44% {
-    transform: translate(-0.02em, 0.025em);
-  }
-  48% {
-    transform: translate(0.035em, 0.03em);
-  }
-  52% {
-    transform: translate(-0.03em, -0.035em);
-  }
-  56% {
-    transform: translate(0.015em, 0.02em);
-  }
-  60% {
-    transform: translate(-0.025em, -0.01em);
-  }
-  64%,
-  100% {
-    transform: none;
-  }
-}
 .sg-hero-meta {
   display: grid;
   gap: var(--space-3);
@@ -1602,7 +1467,6 @@ textarea.sg-input {
 /* Keep the glows; drop the power-on, wipes, jitter, ticker and roll. */
 @media (prefers-reduced-motion: reduce) {
   .sg-boot #sg-screen,
-  .sg-trk-base,
   .sg-ticker-track,
   .sg-roll,
   .sg-rec::before,
@@ -1613,9 +1477,6 @@ textarea.sg-input {
     animation: none !important;
   }
   [data-wipe].sg-in::before {
-    display: none;
-  }
-  .sg-trk-copy {
     display: none;
   }
   [data-wipe].sg-armed {

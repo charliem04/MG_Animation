@@ -13,37 +13,6 @@ import { VideoLightbox, type LightboxItem } from "./VideoLightbox";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/**
- * The heading's VHS tracking glitch. The heading is drawn three times
- * on top of itself: the real <h1> shows everything left of a diagonal
- * scan band, one copy shows the band itself (its letters jittering and
- * flaring inside it), and one copy shows everything right of it.
- * Sliding the band across all three at once reads as one heading being
- * scanned (styles: .sg-trk in globals.css). The copies are plain divs
- * hidden from screen readers, so the page still has one clean h1.
- */
-function HeroName() {
-  const lines = (
-    <>
-      {client.businessName}
-      <span className="sg-l2">{client.taglineEmphasis}</span>
-    </>
-  );
-  return (
-    <div className="sg-trk">
-      <h1 id="hero-name" className="sg-hero-name sg-ab sg-trk-base">
-        {lines}
-      </h1>
-      <div className="sg-hero-name sg-ab sg-trk-copy sg-trk-band" aria-hidden="true">
-        <span className="sg-trk-shift">{lines}</span>
-      </div>
-      <div className="sg-hero-name sg-ab sg-trk-copy sg-trk-right" aria-hidden="true">
-        {lines}
-      </div>
-    </div>
-  );
-}
-
 export function ReelHero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const tcRef = useRef<HTMLSpanElement>(null);
@@ -78,7 +47,10 @@ export function ReelHero() {
   return (
     <section id="reel" className="section sg-hero" aria-labelledby="hero-name">
       <div className="sg-hero-top">
-        <HeroName />
+        <h1 id="hero-name" className="sg-hero-name sg-ab">
+          {client.businessName}
+          <span className="sg-l2">{client.taglineEmphasis}</span>
+        </h1>
         <div className="sg-hero-meta">
           <span className="sg-label sg-signal sg-glow">
             ▶ Showreel / {showreel.year} / {showreel.runtime.padStart(5, "0")}
