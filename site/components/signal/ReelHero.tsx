@@ -6,7 +6,7 @@
  * under an on-screen display (rec dot, resolution, live timecode);
  * the play button opens the full reel with sound.
  */
-import { Fragment, useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { client } from "@/client.config";
 import { showreel, vimeoEmbed } from "@/content/work";
 import { VideoLightbox, type LightboxItem } from "./VideoLightbox";
@@ -14,29 +14,33 @@ import { VideoLightbox, type LightboxItem } from "./VideoLightbox";
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
- * The heading's wave: each letter in its own span, numbered in reading
- * order (--i) so the wave and shimmer roll through them one after
- * another (styles: .sg-wave in globals.css). Words stay unbreakable so
- * a line never wraps mid-word. Hidden from screen readers; the h1's
- * aria-label reads the plain text instead.
+ * The heading's VHS tracking glitch. The heading is drawn three times
+ * on top of itself: the real <h1> shows everything above the scan line,
+ * one copy shows the thin band at the line (shoved sideways and
+ * flaring), and one copy shows everything below it. Moving the line
+ * down all three at once reads as one heading being scanned
+ * (styles: .sg-trk in globals.css). The copies are plain divs hidden
+ * from screen readers, so the page still has one clean h1.
  */
-function WaveText({ text, start }: { text: string; start: number }) {
-  let i = start;
-  return (
+function HeroName() {
+  const lines = (
     <>
-      {text.split(" ").map((word, w) => (
-        <Fragment key={w}>
-          {w > 0 && " "}
-          <span className="sg-wave-word">
-            {Array.from(word).map((ch, c) => (
-              <span key={c} className="sg-wave-ch" style={{ "--i": i++ } as CSSProperties}>
-                {ch}
-              </span>
-            ))}
-          </span>
-        </Fragment>
-      ))}
+      {client.businessName}
+      <span className="sg-l2">{client.taglineEmphasis}</span>
     </>
+  );
+  return (
+    <div className="sg-trk">
+      <h1 id="hero-name" className="sg-hero-name sg-ab sg-trk-base">
+        {lines}
+      </h1>
+      <div className="sg-hero-name sg-ab sg-trk-copy sg-trk-band" aria-hidden="true">
+        {lines}
+      </div>
+      <div className="sg-hero-name sg-ab sg-trk-copy sg-trk-below" aria-hidden="true">
+        {lines}
+      </div>
+    </div>
   );
 }
 
@@ -74,18 +78,7 @@ export function ReelHero() {
   return (
     <section id="reel" className="section sg-hero" aria-labelledby="hero-name">
       <div className="sg-hero-top">
-        <h1
-          id="hero-name"
-          className="sg-hero-name sg-ab sg-wave"
-          aria-label={`${client.businessName} ${client.taglineEmphasis}`}
-        >
-          <span aria-hidden="true">
-            <WaveText text={client.businessName} start={0} />
-          </span>
-          <span className="sg-l2" aria-hidden="true">
-            <WaveText text={client.taglineEmphasis} start={client.businessName.replace(/ /g, "").length} />
-          </span>
-        </h1>
+        <HeroName />
         <div className="sg-hero-meta">
           <span className="sg-label sg-signal sg-glow">
             ▶ Showreel / {showreel.year} / {showreel.runtime.padStart(5, "0")}
