@@ -52,44 +52,52 @@ export const metadata: Metadata = {
  * already the 1px line; started from React instead, the finished page
  * flashes up first and then snaps to the line.
  *
- * The animation is held on that first frame (paused) until the page
- * has actually been drawn, then let go. Started straight away, a phone
- * still busy loading the site's code would spend most of the 0.9s not
- * painting, and the visitor would only see the end. If the page never
- * signals it's drawn, a 2.5s timer lets it go anyway, and 3s after it
- * starts the class comes off whatever happened, so nothing stays hidden.
+ * The animation is then held on that line (paused) until the page has
+ * finished loading, and only let go on the frame after. Phones spend
+ * the first second or so after their first paint running the site's
+ * code; an animation started in that window has its clock running but
+ * nothing drawn, so the visitor only ever saw the end. Waiting for the
+ * load means it plays on an idle phone. A 3.5s cap lets it go anyway,
+ * and 3s after it starts the class comes off whatever happened, so
+ * nothing stays hidden.
  *
- * Nothing starts until the page is actually on screen. Phone browsers
- * (Safari and Chrome both) load the top address-bar suggestion in the
- * background while you're still typing; started then, the whole thing
- * played in the hidden copy and was over before you hit Go. A page
- * loaded in a background tab waits the same way. "Seen" is only
- * recorded once it really plays, so a preload that's never opened
- * doesn't use up the visit's power-on.
+ * Nothing starts until the page is actually on screen: phone browsers
+ * load the top address-bar suggestion in the background while you
+ * type, and a background tab is the same. "Seen" is only recorded once
+ * it really plays.
  *
  * --boot-y is the scroll position when it starts, so the line opens in
- * the middle of what's on screen even when the page loads scrolled down
- * (a #contact link, or the browser restoring where you were).
+ * the middle of what's on screen even when the page loads scrolled down.
  *
  * Plays once per visit and never under reduced motion. Removing the
  * class when the animation ends puts #sg-screen back to normal (an
  * element with a transform animation traps position: fixed children).
  * If this script doesn't run, nothing is hidden: the page just shows.
  *
+ * ?bootdebug on any URL plays it every time and prints a timing log in
+ * the corner (ms since the page started), for checking on a real phone.
+ *
  * It also marks <html> with "js", which the phone menu uses to fold the
  * nav links away only when the Menu button can open them again.
  */
 const POWER_ON = `(function(){
-var d=document.documentElement,seen=false,started=false,armed=false;
+var d=document.documentElement,seen=false,started=false,armed=false,box=null,L=[];
+var dbg=/[?&]bootdebug/.test(location.search);
+function log(m){if(!dbg)return;L.push(Math.round(performance.now())+" "+m);if(box)box.textContent=L.join("\\n")}
+if(dbg){document.addEventListener("DOMContentLoaded",function(){box=document.createElement("pre");box.style.cssText="position:fixed;left:8px;bottom:8px;z-index:2147483647;margin:0;padding:8px 10px;background:rgba(0,0,0,.88);color:#9f9;font:11px/1.35 monospace;pointer-events:none;max-width:90vw;white-space:pre-wrap";document.body.appendChild(box);log("box")});
+try{new PerformanceObserver(function(l){l.getEntries().forEach(function(e){log(e.name+" @"+Math.round(e.startTime))})}).observe({type:"paint",buffered:true})}catch(e){}
+document.addEventListener("animationstart",function(e){if(e.animationName==="sg-power")log("animationstart")});}
 d.classList.add("js");
+var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 try{seen=!!sessionStorage.getItem("sg-powered")}catch(e){}
-if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+log("script vis="+document.visibilityState+" prerender="+!!document.prerendering+" seen="+seen+" reduce="+reduce+" w="+innerWidth);
+if(!dbg&&(seen||reduce))return;
 d.classList.add("sg-boot");
-function end(){d.classList.remove("sg-boot","sg-on");d.style.removeProperty("--boot-y")}
-function go(){if(started)return;started=true;try{sessionStorage.setItem("sg-powered","1")}catch(e){}d.style.setProperty("--boot-y",(window.scrollY||0)+"px");d.classList.add("sg-on");setTimeout(end,3000)}
-document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;document.removeEventListener("animationend",f);end()});
-function painted(){requestAnimationFrame(function(){setTimeout(go,0)})}
-function arm(){if(armed)return;armed=true;if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",painted);else painted();setTimeout(go,2500)}
+function end(why){if(!d.classList.contains("sg-boot"))return;d.classList.remove("sg-boot","sg-on");d.style.removeProperty("--boot-y");log("end "+why)}
+function go(why){if(started)return;started=true;try{sessionStorage.setItem("sg-powered","1")}catch(e){}d.style.setProperty("--boot-y",(window.scrollY||0)+"px");d.classList.add("sg-on");log("go "+why);setTimeout(function(){end("timer")},3000)}
+document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;document.removeEventListener("animationend",f);end("animationend")});
+function next(){requestAnimationFrame(function(){setTimeout(function(){go("loaded")},0)})}
+function arm(){if(armed)return;armed=true;log("on screen");if(document.readyState==="complete")next();else addEventListener("load",function(){log("load");next()});setTimeout(function(){go("cap")},3500)}
 function onScreen(){return !document.prerendering&&document.visibilityState==="visible"}
 function check(){if(onScreen())arm()}
 check();
