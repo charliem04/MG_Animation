@@ -52,6 +52,17 @@ export const metadata: Metadata = {
  * already the 1px line; started from React instead, the finished page
  * flashes up first and then snaps to the line.
  *
+ * The animation is held on that first frame (paused) until the page
+ * has actually been drawn, then let go. Started straight away, a phone
+ * still busy loading the site's code would spend most of the 0.9s not
+ * painting, and the visitor would only see the end. If the page never
+ * signals it's drawn, a 2.5s timer lets it go anyway, and 3s after it
+ * starts the class comes off whatever happened, so nothing stays hidden.
+ *
+ * --boot-y is the scroll position when it starts, so the line opens in
+ * the middle of what's on screen even when the page loads scrolled down
+ * (a #contact link, or the browser restoring where you were).
+ *
  * Plays once per visit and never under reduced motion. Removing the
  * class when the animation ends puts #sg-screen back to normal (an
  * element with a transform animation traps position: fixed children).
@@ -60,7 +71,19 @@ export const metadata: Metadata = {
  * It also marks <html> with "js", which the phone menu uses to fold the
  * nav links away only when the Menu button can open them again.
  */
-const POWER_ON = `(function(){var d=document.documentElement,seen=false;d.classList.add("js");try{seen=!!sessionStorage.getItem("sg-powered");sessionStorage.setItem("sg-powered","1")}catch(e){}if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("sg-boot");document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;d.classList.remove("sg-boot");document.removeEventListener("animationend",f)})})();`;
+const POWER_ON = `(function(){
+var d=document.documentElement,seen=false,started=false;
+d.classList.add("js");
+try{seen=!!sessionStorage.getItem("sg-powered");sessionStorage.setItem("sg-powered","1")}catch(e){}
+if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+d.classList.add("sg-boot");
+function end(){d.classList.remove("sg-boot","sg-on");d.style.removeProperty("--boot-y")}
+function go(){if(started)return;started=true;d.style.setProperty("--boot-y",(window.scrollY||0)+"px");d.classList.add("sg-on");setTimeout(end,3000)}
+document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;document.removeEventListener("animationend",f);end()});
+function painted(){requestAnimationFrame(function(){setTimeout(go,0)})}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",painted);else painted();
+setTimeout(go,2500);
+})();`;
 
 /**
  * The chrome lives here, not on the home page — every route gets the

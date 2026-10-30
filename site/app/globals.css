@@ -1501,9 +1501,15 @@ textarea.sg-input {
    script in <head> (app/layout.tsx) so it starts on the first frame;
    the wipes are armed by components/signal/SignalMotion.tsx. With no
    JS nothing is hidden. */
+/* Held on the first frame (the line) until the head script adds
+   .sg-on once the page has painted; see POWER_ON in app/layout.tsx. */
 .sg-boot #sg-screen {
-  transform-origin: center 30vh;
+  transform-origin: center calc(var(--boot-y, 0px) + 30vh);
   animation: sg-power var(--duration-slow) var(--ease-out) both;
+  animation-play-state: paused;
+}
+.sg-boot.sg-on #sg-screen {
+  animation-play-state: running;
 }
 @keyframes sg-power {
   0% {
