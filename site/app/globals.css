@@ -1337,6 +1337,147 @@ textarea.sg-input {
   min-height: 1.4em;
 }
 
+/* ── brief sent ── The form switches off like a CRT (squash to a
+   glowing line, shrink to a dot, gone), then the thank-you powers on
+   from a line in its place and its blocks arrive one after another. */
+.sg-form-off {
+  transform-origin: center;
+  pointer-events: none;
+  animation: sg-power-off 640ms cubic-bezier(0.6, 0, 0.4, 1) forwards;
+}
+@keyframes sg-power-off {
+  0% {
+    transform: none;
+    filter: none;
+    background-color: transparent;
+  }
+  14% {
+    transform: scale(1.01, 1.03);
+    filter: brightness(1.8);
+  }
+  42% {
+    transform: scale(1, 0.004);
+    filter: brightness(3);
+    background-color: #fff2ec;
+  }
+  72% {
+    transform: scale(0.012, 0.004);
+    filter: brightness(4);
+    background-color: #fff;
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0, 0.004);
+    background-color: #fff;
+    opacity: 0;
+  }
+}
+.sg-sent {
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+  transform-origin: center;
+  animation: sg-power var(--duration-slow) var(--ease-out) both;
+}
+.sg-sent > * {
+  animation: sg-sent-in 420ms var(--ease-out) both;
+  animation-delay: calc(480ms + var(--i, 0) * 90ms);
+}
+@keyframes sg-sent-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.sg-sent-h {
+  margin: 0;
+  font-size: clamp(32px, 4.6vw, 56px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+.sg-sent-h:focus {
+  outline: none;
+}
+.sg-sent-lede {
+  margin: calc(var(--space-3) * -1) 0 0;
+  max-width: 44ch;
+  color: var(--ink-dim);
+  font-size: 17px;
+  line-height: 1.55;
+}
+/* The recap reads like an on-screen readout: mono labels, tabular. */
+.sg-slate {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin: 0;
+  border: 1px solid var(--line-hex);
+  border-left: 2px solid var(--signal);
+  background: rgb(var(--surface-alt));
+}
+.sg-slate > div {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line-hex);
+  min-width: 0;
+}
+.sg-slate dt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.sg-slate dd {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  color: var(--ink-hex);
+  overflow-wrap: anywhere;
+}
+.sg-slate > div:first-child dd {
+  color: var(--signal);
+  letter-spacing: 0.06em;
+}
+.sg-next {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: grid;
+}
+.sg-next li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+  align-items: baseline;
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--line-hex);
+}
+.sg-next-n {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--signal);
+}
+.sg-next b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+}
+.sg-next b + span {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-dim);
+  font-size: 15px;
+}
+.sg-sent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
 /* ── footer ── */
 .sg-foot {
   border-top: 1px solid var(--line-hex);
@@ -1477,7 +1618,10 @@ textarea.sg-input {
   .sg-ticker-track,
   .sg-roll,
   .sg-rec::before,
-  [data-wipe].sg-in h2 {
+  [data-wipe].sg-in h2,
+  .sg-form-off,
+  .sg-sent,
+  .sg-sent > * {
     animation: none !important;
   }
   [data-wipe].sg-in {
@@ -1507,6 +1651,10 @@ textarea.sg-input {
   /* A headshot, not a poster: leave room to see the words beside it. */
   .sg-about-fig {
     max-width: 240px;
+  }
+  .sg-sent-actions .sg-btn {
+    flex: 1 1 100%;
+    justify-content: center;
   }
   .sg-chip b {
     padding: 13px 14px;

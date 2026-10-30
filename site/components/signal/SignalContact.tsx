@@ -10,15 +10,47 @@
  *
  * Every box is cleaned as it's typed and capped at its length
  * (lib/formSafety.ts), and the browser holds back repeat sends.
+ *
+ * Once a brief is sent the form switches off like an old CRT (squashes
+ * to a glowing line, shrinks to a dot, gone) and the thank-you panel
+ * powers on in its place: a recap of what was sent with a reference,
+ * what happens next, and ways to keep going. Reduced motion skips
+ * straight to the panel.
  */
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode, type RefObject } from "react";
+import { scrollToPosition } from "@/components/SmoothScroll";
 import { client } from "@/client.config";
 import { submitContact } from "@/lib/submitContact";
 import { dialable, PHONE_NUDGE } from "@/lib/phone";
 import { LIMITS, cleanEmail, cleanPhone, cleanTyping, recordSend, sendBlocked } from "@/lib/formSafety";
 import { trackEvent } from "@/lib/tracking";
 
-type Status = "idle" | "sending" | "sent" | "error";
+type Status = "idle" | "sending" | "closing" | "sent" | "error";
+
+/** What the thank-you panel recaps, kept from the form before it's cleared. */
+type Sent = {
+  firstName: string;
+  reference: string;
+  receivedAt: string;
+  neededBy: string;
+  services: string;
+  budget: string;
+};
+
+/** Matches the form's switch-off in globals.css. */
+const OFF_MS = 640;
+
+/** A short, readable reference: MG- plus four characters, no 0/O/1/I. */
+function makeReference(): string {
+  const abc = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const n = new Uint8Array(4);
+  crypto.getRandomValues(n);
+  return "MG-" + Array.from(n, (b) => abc[b % abc.length]).join("");
+}
+
+function reducedMotion() {
+  return matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 const EMPTY = {
   name: "",
@@ -105,6 +137,8 @@ export function SignalContact() {
   const [invalid, setInvalid] = useState<string[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [sent, setSent] = useState<Sent | null>(null);
+  const sentHeading = useRef<HTMLHeadingElement>(null);
   // Bot traps (see lib/submitContact.ts): a hidden checkbox, and when
   // the form appeared, to spot briefs filled in faster than a person can.
   const [botcheck, setBotcheck] = useState(false);
@@ -158,6 +192,8 @@ export function SignalContact() {
 
     setStatus("sending");
     setError("");
+    const reference = makeReference();
+    const neededBy = form.neededBy === CUSTOM ? form.neededByCustom.trim() : form.neededBy;
     const result = await submitContact({
       name: form.name,
       email: form.email,
@@ -166,15 +202,28 @@ export function SignalContact() {
       service: services.join(", "),
       urgency: "",
       budget: form.budget,
-      neededBy: form.neededBy === CUSTOM ? form.neededByCustom : form.neededBy,
+      neededBy,
       message: form.message,
+      reference,
       referralNote: form.referralNote,
       botcheck,
       startedAt: startedAt.current,
     });
     if (result.ok) {
       recordSend();
-      setStatus("sent");
+      setSent({
+        firstName: form.name.trim().split(" ").filter(Boolean)[0] ?? "",
+        reference,
+        receivedAt: new Date().toLocaleString(undefined, {
+          weekday: "short",
+          hour: "numeric",
+          minute: "2-digit",
+        }),
+        neededBy,
+        services: services.join(", "),
+        budget: form.budget,
+      });
+      setStatus(reducedMotion() ? "sent" : "closing");
       trackEvent("Form submit", { service: services.join(", ") || "unspecified" });
       setForm(EMPTY);
       setServices([]);
@@ -182,6 +231,32 @@ export function SignalContact() {
       setError(result.error);
       setStatus("error");
     }
+  }
+
+  // The switch-off ends on animationend; the timer covers a tab that
+  // never paints it (hidden, or a browser that skips the animation).
+  useEffect(() => {
+    if (status !== "closing") return;
+    const t = setTimeout(() => setStatus("sent"), OFF_MS + 200);
+    return () => clearTimeout(t);
+  }, [status]);
+
+  // When the panel arrives: move focus to it for screen readers, and
+  // bring it into view if the shorter panel left the visitor past it.
+  useEffect(() => {
+    if (status !== "sent") return;
+    const h = sentHeading.current;
+    if (!h) return;
+    h.focus({ preventScroll: true });
+    const top = h.closest(".sg-sent")?.getBoundingClientRect().top ?? 0;
+    if (top < 80 || top > window.innerHeight * 0.6) scrollToPosition(window.scrollY + top - 96);
+  }, [status]);
+
+  function sendAnother() {
+    setSent(null);
+    setStatus("idle");
+    startedAt.current = Date.now();
+    setTimeout(() => document.getElementById("f-name")?.focus(), 0);
   }
 
   const err = (k: string) =>
@@ -213,13 +288,19 @@ export function SignalContact() {
         </div>
       </div>
 
-      {status === "sent" ? (
-        <div className="sg-form" role="status" aria-live="polite">
-          <span className="sg-label sg-signal">Brief received</span>
-          <p style={{ margin: 0, fontSize: 18 }}>{client.copy.contactConfirmation}</p>
-        </div>
+      {status === "sent" && sent ? (
+        <SentPanel sent={sent} headingRef={sentHeading} onAnother={sendAnother} />
       ) : (
-        <form className="sg-form" onSubmit={onSubmit} noValidate>
+        <form
+          className={`sg-form${status === "closing" ? " sg-form-off" : ""}`}
+          onSubmit={onSubmit}
+          noValidate
+          aria-busy={status === "closing" || undefined}
+          {...(status === "closing" ? { inert: "" as unknown as boolean } : {})}
+          onAnimationEnd={(e) => {
+            if (e.target === e.currentTarget && e.animationName === "sg-power-off") setStatus("sent");
+          }}
+        >
           <div className="sg-f2">
             <label className="sg-field" htmlFor="f-name">
               <span className="sg-label">Name</span>
@@ -351,5 +432,78 @@ export function SignalContact() {
         </form>
       )}
     </section>
+  );
+}
+
+/** Staggers each block of the panel in after the power-on. */
+const step = (i: number) => ({ "--i": i }) as CSSProperties;
+
+/** The thank-you that powers on where the form was. */
+function SentPanel({
+  sent,
+  headingRef,
+  onAnother,
+}: {
+  sent: Sent;
+  headingRef: RefObject<HTMLHeadingElement>;
+  onAnother: () => void;
+}) {
+  const recap: [string, string][] = [
+    ["Reference", sent.reference],
+    ["Received", sent.receivedAt],
+    ["Needed by", sent.neededBy || "Flexible"],
+    ["Services", sent.services || "To discuss"],
+    ["Budget", sent.budget || "Not sure yet"],
+  ];
+  return (
+    <div className="sg-sent">
+      <span className="sg-label sg-signal sg-glow sg-rec" style={step(0)}>
+        {client.copy.contactSentEyebrow}
+      </span>
+      <h3 ref={headingRef} tabIndex={-1} className="sg-sent-h sg-ab" style={step(1)}>
+        Thanks{sent.firstName ? `, ${sent.firstName}` : ""}.
+      </h3>
+      <p className="sg-sent-lede" style={step(2)}>
+        {client.copy.contactConfirmation} Your brief is in my inbox now.
+      </p>
+
+      <dl className="sg-slate" style={step(3)}>
+        {recap.map(([k, v]) => (
+          <div key={k}>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div style={step(4)}>
+        <span className="sg-label">What happens next</span>
+        <ol className="sg-next">
+          {client.copy.contactNextSteps.map((s, i) => (
+            <li key={s.title}>
+              <span className="sg-next-n" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span>
+                <b>{s.title}</b>
+                <span>{s.body}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="sg-sent-actions" style={step(5)}>
+        <a className="sg-btn sg-btn-primary" href={`tel:${client.phoneHref}`}>
+          Need it sooner? Call
+        </a>
+        <a className="sg-btn sg-btn-ghost" href="#reel">
+          Watch the reel
+        </a>
+        <button type="button" className="sg-btn sg-btn-ghost" onClick={onAnother}>
+          Send another brief
+        </button>
+      </div>
+    </div>
   );
 }

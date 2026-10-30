@@ -229,6 +229,13 @@ export const client = {
       "Tell me what you're making and when it needs to ship. I usually reply the same day.",
     contactSubmit: "Send project brief",
     contactConfirmation: "Got it. I'll reply within a day.",
+    // The panel that replaces the form once a brief is sent.
+    contactSentEyebrow: "Transmission received",
+    contactNextSteps: [
+      { title: "I read your brief", body: "And watch anything you've linked, usually the same day." },
+      { title: "I reply with questions", body: "Or a time to talk it through on the phone." },
+      { title: "You get a quote and a schedule", body: "With dates worked back from your deadline." },
+    ],
     closingHeading: "",
     closingBody: "",
     footerBlurb: "",

@@ -62,6 +62,9 @@ export type ContactPayload = {
   neededBy?: string;
   /** Free-text detail */
   message: string;
+  /** Short reference shown to the visitor on the thank-you panel, so a
+   *  reply or a call can point at the same brief Matt received. */
+  reference?: string;
   /**
    * Honeypot — must be empty; bots fill it.
    *
@@ -159,6 +162,7 @@ export async function submitContact(
     budget: cleanShort(payload.budget ?? "", 40),
     needed_by: cleanShort(payload.neededBy ?? "", LIMITS.neededByCustom),
     message: cleanFinal(payload.message, LIMITS.message, true),
+    reference: cleanShort(payload.reference ?? "", 16),
   });
 
   const meta = {
@@ -214,7 +218,7 @@ export async function submitContact(
         // one field where a stray newline is genuinely header-shaped.
         // Urgency leads, so the office can triage from the inbox list
         // without opening anything: "[Emergency — ASAP] …" sorts itself.
-        subject: `Project brief — ${fields.name ?? ""}${fields.service ? ` (${fields.service})` : ""}`,
+        subject: `Project brief — ${fields.name ?? ""}${fields.service ? ` (${fields.service})` : ""}${fields.reference ? ` · ${fields.reference}` : ""}`,
         from_name: client.businessName,
         ...fields,
         ...meta,
