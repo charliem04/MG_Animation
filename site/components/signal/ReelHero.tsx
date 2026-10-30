@@ -5,10 +5,13 @@
  * content width — the largest thing on the page. A muted loop plays
  * under an on-screen display (rec dot, resolution, live timecode);
  * the play button opens the full reel with sound.
+ *
+ * The words come from content/hero.json, edited in Pages CMS.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { client } from "@/client.config";
 import { showreel, vimeoEmbed } from "@/content/work";
+import { hero } from "@/content/hero";
 import { VideoLightbox, type LightboxItem } from "./VideoLightbox";
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -48,20 +51,20 @@ export function ReelHero() {
     <section id="reel" className="section sg-hero" aria-labelledby="hero-name">
       <div className="sg-hero-top">
         <h1 id="hero-name" className="sg-hero-name sg-ab">
-          {client.businessName}
-          <span className="sg-l2">{client.taglineEmphasis}</span>
+          {hero.name}
+          <span className="sg-l2">{hero.line2}</span>
         </h1>
         <div className="sg-hero-meta">
           <span className="sg-label sg-signal sg-glow">
             ▶ Showreel / {showreel.year} / {showreel.runtime.padStart(5, "0")}
           </span>
-          <p>{client.subheadline}</p>
+          <p>{hero.intro}</p>
           <div className="sg-actions">
             <a className="sg-btn sg-btn-primary" href="#contact">
-              {client.copy.heroCta}
+              {hero.primaryButton}
             </a>
             <a className="sg-btn sg-btn-ghost" href="#work">
-              {client.copy.heroSecondaryCta}
+              {hero.secondaryButton}
             </a>
           </div>
         </div>

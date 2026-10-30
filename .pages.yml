@@ -1,8 +1,9 @@
 # Pages CMS — the editor Matt uses at https://app.pagescms.org
 #
-# Two screens. "Work" edits site/content/work.json: the showreel link,
-# the ticker words, and each section's cards. "About" edits
-# site/content/about.json. Saving commits to main,
+# Three screens. "Hero" edits site/content/hero.json: the name, intro
+# and button words at the top of the page. "Work" edits
+# site/content/work.json: the showreel link, the ticker words, and each
+# section's cards. "About" edits site/content/about.json. Saving commits to main,
 # and Cloudflare rebuilds the site from that commit (~1–2 min).
 #
 # Images (thumbnails and the headshot) upload to site/public/work/
@@ -19,6 +20,54 @@ media:
   extensions: [jpg, jpeg, png, webp]
 
 content:
+  - name: hero
+    label: Hero
+    description: The words at the top of the home page, beside the showreel.
+    type: file
+    path: site/content/hero.json
+    format: json
+    fields:
+      - name: name
+        label: Name
+        description: The big first line. Up to 24 characters.
+        type: string
+        required: true
+        pattern:
+          regex: '^.{1,24}$'
+          message: Keep it to 24 characters so it fits on a phone.
+      - name: line2
+        label: Second line
+        description: The orange line under the name, e.g. Video & Animation. Up to 32 characters.
+        type: string
+        required: true
+        pattern:
+          regex: '^.{1,32}$'
+          message: Keep it to 32 characters so it fits on a phone.
+      - name: intro
+        label: Intro sentence
+        description: One sentence on what you make and who for. Up to 220 characters.
+        type: text
+        required: true
+        pattern:
+          regex: '^[\s\S]{1,220}$'
+          message: Keep it to 220 characters.
+      - name: primaryButton
+        label: Orange button
+        description: Jumps to the project form, e.g. Start a project. Up to 24 characters.
+        type: string
+        required: true
+        pattern:
+          regex: '^.{1,24}$'
+          message: Keep it to 24 characters.
+      - name: secondaryButton
+        label: Outline button
+        description: Jumps to the video cards, e.g. See the work. Up to 24 characters.
+        type: string
+        required: true
+        pattern:
+          regex: '^.{1,24}$'
+          message: Keep it to 24 characters.
+
   - name: work
     label: Work
     description: The showreel, the scrolling words, and every video card on the home page.

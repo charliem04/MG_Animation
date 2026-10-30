@@ -27,7 +27,10 @@ export const client = {
   // ── Identity ──────────────────────────────────────────────────────
   businessName: "Matt Guidry",
   legalName: "Matt Guidry", // TODO(client) — swap for the LLC name if he trades under one
-  /** Hero: the name prints first, `taglineEmphasis` under it in signal. */
+  /**
+   * The home-page hero reads content/hero.json (edited in Pages CMS),
+   * not these; they remain for the template's older components.
+   */
   tagline: "Matt Guidry",
   taglineEmphasis: "Video & Animation",
   subheadline:
