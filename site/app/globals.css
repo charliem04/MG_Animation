@@ -533,19 +533,19 @@ html {
 /* VHS tracking glitch. Three stacked copies of the heading, each
    clipped to one side of a diagonal scan band ( / ) that slides left
    to right: the h1 left of it, the band itself, and a copy right of
-   it. The band's letters jitter inside the band and flare brighter
-   with a wider RGB split; nothing is drawn outside the letters. Every
+   it. The band's letters jitter inside the band and turn a cool
+   phosphor white with a blue glow; nothing is drawn outside the letters. Every
    clip moves on the same linear timeline, so the seams never show.
-   One slow pass takes ~5.5s of a 10s loop; the rest of the time the
+   One slow pass takes ~9s of a 14s loop; the rest of the time the
    h1 alone shows the heading, clean.
 
    Geometry (% of the heading box): the band's bottom edge travels from
-   x = -16.2% to 106%, its top edge sits 9% further right (the lean),
-   and it's a thin 1.2% wide. Points run past the box (-40%..140% tall,
+   x = -15.6% to 106%, its top edge sits 9% further right (the lean),
+   and it's a hairline 0.6% wide. Points run past the box (-40%..140% tall,
    -30%..130% wide) so glows are never trimmed. */
 .sg-trk {
   position: relative;
-  --trk-time: 10s;
+  --trk-time: 14s;
   --trk-delay: 1.3s;
 }
 .sg-trk-copy {
@@ -561,13 +561,19 @@ html {
 .sg-trk-base {
   animation: sg-trk-left var(--trk-time) linear var(--trk-delay) infinite backwards;
 }
+/* The line's letters turn a cool phosphor white with a blue glow, on
+   both lines (the orange second line included), keeping the red/blue
+   split at the edges. */
+.sg-trk-band,
+.sg-trk-band .sg-l2 {
+  color: #eef2ff;
+}
 .sg-trk-band {
   animation: sg-trk-band var(--trk-time) linear var(--trk-delay) infinite backwards;
   text-shadow:
-    calc(var(--fx) * -6px) 0 rgba(255, 77, 31, 0.95),
-    calc(var(--fx) * 6px) 0 rgba(111, 155, 255, 0.95),
-    0 0 calc(var(--fx) * 22px) rgba(255, 244, 236, 0.7);
-  filter: brightness(1.7);
+    calc(var(--fx) * -4px) 0 rgba(255, 77, 31, 0.9),
+    calc(var(--fx) * 4px) 0 rgba(111, 155, 255, 0.95),
+    0 0 calc(var(--fx) * 18px) rgba(140, 175, 255, 0.85);
 }
 /* The letters move inside the band, so the band's edges stay put and
    no gap ever opens between it and its neighbours. */
@@ -580,29 +586,29 @@ html {
 }
 @keyframes sg-trk-left {
   0% {
-    clip-path: polygon(-30% -40%, -7.2% -40%, -16.2% 140%, -30% 140%);
+    clip-path: polygon(-30% -40%, -6.6% -40%, -15.6% 140%, -30% 140%);
   }
-  55%,
+  64%,
   100% {
     clip-path: polygon(-30% -40%, 115% -40%, 106% 140%, -30% 140%);
   }
 }
 @keyframes sg-trk-band {
   0% {
-    clip-path: polygon(-7.2% -40%, -6% -40%, -15% 140%, -16.2% 140%);
+    clip-path: polygon(-6.6% -40%, -6% -40%, -15% 140%, -15.6% 140%);
   }
-  55%,
+  64%,
   100% {
-    clip-path: polygon(115% -40%, 116.2% -40%, 107.2% 140%, 106% 140%);
+    clip-path: polygon(115% -40%, 115.6% -40%, 106.6% 140%, 106% 140%);
   }
 }
 @keyframes sg-trk-right {
   0% {
     clip-path: polygon(-6% -40%, 130% -40%, 130% 140%, -15% 140%);
   }
-  55%,
+  64%,
   100% {
-    clip-path: polygon(116.2% -40%, 130% -40%, 130% 140%, 107.2% 140%);
+    clip-path: polygon(115.6% -40%, 130% -40%, 130% 140%, 106.6% 140%);
   }
 }
 /* Tape jitter: the band's letters snap between small offsets. */
@@ -610,40 +616,52 @@ html {
   0% {
     transform: translate(0.03em, -0.04em);
   }
-  4.6% {
+  4% {
     transform: translate(-0.025em, 0.035em);
   }
-  9.2% {
+  8% {
     transform: translate(0.04em, 0.01em);
   }
-  13.8% {
+  12% {
     transform: translate(-0.01em, -0.045em);
   }
-  18.3% {
+  16% {
     transform: translate(0.035em, 0.04em);
   }
-  22.9% {
+  20% {
     transform: translate(-0.03em, -0.02em);
   }
-  27.5% {
+  24% {
     transform: translate(0.02em, 0.035em);
   }
-  32.1% {
+  28% {
     transform: translate(-0.035em, 0.015em);
   }
-  36.7% {
+  32% {
     transform: translate(0.025em, -0.03em);
   }
-  41.2% {
+  36% {
     transform: translate(-0.015em, 0.04em);
   }
-  45.8% {
+  40% {
     transform: translate(0.03em, -0.01em);
   }
-  50.4% {
+  44% {
     transform: translate(-0.02em, 0.025em);
   }
-  55%,
+  48% {
+    transform: translate(0.035em, 0.03em);
+  }
+  52% {
+    transform: translate(-0.03em, -0.035em);
+  }
+  56% {
+    transform: translate(0.015em, 0.02em);
+  }
+  60% {
+    transform: translate(-0.025em, -0.01em);
+  }
+  64%,
   100% {
     transform: none;
   }
