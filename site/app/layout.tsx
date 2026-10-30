@@ -59,6 +59,14 @@ export const metadata: Metadata = {
  * signals it's drawn, a 2.5s timer lets it go anyway, and 3s after it
  * starts the class comes off whatever happened, so nothing stays hidden.
  *
+ * Nothing starts until the page is actually on screen. Phone browsers
+ * (Safari and Chrome both) load the top address-bar suggestion in the
+ * background while you're still typing; started then, the whole thing
+ * played in the hidden copy and was over before you hit Go. A page
+ * loaded in a background tab waits the same way. "Seen" is only
+ * recorded once it really plays, so a preload that's never opened
+ * doesn't use up the visit's power-on.
+ *
  * --boot-y is the scroll position when it starts, so the line opens in
  * the middle of what's on screen even when the page loads scrolled down
  * (a #contact link, or the browser restoring where you were).
@@ -72,17 +80,21 @@ export const metadata: Metadata = {
  * nav links away only when the Menu button can open them again.
  */
 const POWER_ON = `(function(){
-var d=document.documentElement,seen=false,started=false;
+var d=document.documentElement,seen=false,started=false,armed=false;
 d.classList.add("js");
-try{seen=!!sessionStorage.getItem("sg-powered");sessionStorage.setItem("sg-powered","1")}catch(e){}
+try{seen=!!sessionStorage.getItem("sg-powered")}catch(e){}
 if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
 d.classList.add("sg-boot");
 function end(){d.classList.remove("sg-boot","sg-on");d.style.removeProperty("--boot-y")}
-function go(){if(started)return;started=true;d.style.setProperty("--boot-y",(window.scrollY||0)+"px");d.classList.add("sg-on");setTimeout(end,3000)}
+function go(){if(started)return;started=true;try{sessionStorage.setItem("sg-powered","1")}catch(e){}d.style.setProperty("--boot-y",(window.scrollY||0)+"px");d.classList.add("sg-on");setTimeout(end,3000)}
 document.addEventListener("animationend",function f(e){if(e.animationName!=="sg-power")return;document.removeEventListener("animationend",f);end()});
 function painted(){requestAnimationFrame(function(){setTimeout(go,0)})}
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",painted);else painted();
-setTimeout(go,2500);
+function arm(){if(armed)return;armed=true;if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",painted);else painted();setTimeout(go,2500)}
+function onScreen(){return !document.prerendering&&document.visibilityState==="visible"}
+function check(){if(onScreen())arm()}
+check();
+document.addEventListener("visibilitychange",check);
+document.addEventListener("prerenderingchange",check);
 })();`;
 
 /**
