@@ -531,12 +531,18 @@ html {
   color: var(--signal);
 }
 /* VHS tracking glitch. Three stacked copies of the heading, each
-   clipped to one region around a scan line that rolls top to bottom:
-   the h1 above it, a thin band at it (shoved sideways, brighter, wider
-   RGB split) and a copy below it. Every clip moves on the same linear
-   timeline, so the seams never show. One pass takes ~1.9s of a 6s
-   loop; the rest of the time the h1 alone shows the heading, clean.
-   Insets reach past the box (-40%, -6%) so glows are never trimmed. */
+   clipped to one side of a diagonal scan band ( / ) that slides left
+   to right: the h1 left of it, the band itself, and a copy right of
+   it. The band's letters jitter inside the band and flare brighter
+   with a wider RGB split; nothing is drawn outside the letters. Every
+   clip moves on the same linear timeline, so the seams never show.
+   One pass takes ~1.9s of a 6s loop; the rest of the time the h1
+   alone shows the heading, clean.
+
+   Geometry (% of the heading box): the band's bottom edge travels from
+   x = -26% to 106%, its top edge sits 14% further right (the lean),
+   and it's 6% wide. Points run past the box (-40%..140% tall,
+   -30%..130% wide) so glows are never trimmed. */
 .sg-trk {
   position: relative;
   --trk-time: 6s;
@@ -553,103 +559,74 @@ html {
   user-select: none;
 }
 .sg-trk-base {
-  animation: sg-trk-above var(--trk-time) linear var(--trk-delay) infinite backwards;
+  animation: sg-trk-left var(--trk-time) linear var(--trk-delay) infinite backwards;
 }
 .sg-trk-band {
-  animation:
-    sg-trk-band var(--trk-time) linear var(--trk-delay) infinite backwards,
-    sg-trk-shove var(--trk-time) steps(1) var(--trk-delay) infinite backwards;
+  animation: sg-trk-band var(--trk-time) linear var(--trk-delay) infinite backwards;
   text-shadow:
     calc(var(--fx) * -6px) 0 rgba(255, 77, 31, 0.95),
     calc(var(--fx) * 6px) 0 rgba(111, 155, 255, 0.95),
-    0 0 calc(var(--fx) * 24px) rgba(255, 244, 236, 0.7);
-  filter: brightness(1.6);
+    0 0 calc(var(--fx) * 22px) rgba(255, 244, 236, 0.7);
+  filter: brightness(1.7);
 }
-.sg-trk-below {
-  animation: sg-trk-below var(--trk-time) linear var(--trk-delay) infinite backwards;
+/* The letters move inside the band, so the band's edges stay put and
+   no gap ever opens between it and its neighbours. */
+.sg-trk-shift {
+  display: block;
+  animation: sg-trk-shove var(--trk-time) steps(1) var(--trk-delay) infinite backwards;
 }
-/* The scan line itself: a faint bright rule riding the top of the band. */
-.sg-trk::after {
-  content: "";
-  position: absolute;
-  left: -2%;
-  right: -2%;
-  height: 2px;
-  top: -40%;
-  pointer-events: none;
-  background: linear-gradient(to right, transparent, rgba(255, 244, 236, 0.55) 15%, rgba(255, 244, 236, 0.55) 85%, transparent);
-  box-shadow: 0 0 calc(var(--fx) * 10px) rgba(255, 140, 100, 0.6);
-  mix-blend-mode: screen;
-  opacity: 0;
-  animation: sg-trk-line var(--trk-time) linear var(--trk-delay) infinite backwards;
+.sg-trk-right {
+  animation: sg-trk-right var(--trk-time) linear var(--trk-delay) infinite backwards;
 }
-/* p = the scan line, from 40% above the heading to 40% below it, over
-   the first 32% of the loop. The band is 9% of the heading tall. */
-@keyframes sg-trk-above {
+@keyframes sg-trk-left {
   0% {
-    clip-path: inset(-40% -6% 140% -6%);
+    clip-path: polygon(-30% -40%, -12% -40%, -26% 140%, -30% 140%);
   }
   32%,
   100% {
-    clip-path: inset(-40% -6% -40% -6%);
+    clip-path: polygon(-30% -40%, 120% -40%, 106% 140%, -30% 140%);
   }
 }
 @keyframes sg-trk-band {
   0% {
-    clip-path: inset(-40% -6% 131% -6%);
+    clip-path: polygon(-12% -40%, -6% -40%, -20% 140%, -26% 140%);
   }
   32%,
   100% {
-    clip-path: inset(140% -6% -49% -6%);
+    clip-path: polygon(120% -40%, 126% -40%, 112% 140%, 106% 140%);
   }
 }
-@keyframes sg-trk-below {
+@keyframes sg-trk-right {
   0% {
-    clip-path: inset(-31% -6% -40% -6%);
+    clip-path: polygon(-6% -40%, 130% -40%, 130% 140%, -20% 140%);
   }
   32%,
   100% {
-    clip-path: inset(149% -6% -40% -6%);
+    clip-path: polygon(126% -40%, 130% -40%, 130% 140%, 112% 140%);
   }
 }
-@keyframes sg-trk-line {
-  0% {
-    top: -40%;
-    opacity: 1;
-  }
-  32% {
-    top: 140%;
-    opacity: 1;
-  }
-  32.01%,
-  100% {
-    top: 140%;
-    opacity: 0;
-  }
-}
-/* The shove: the band snaps between offsets as it rolls, like a tape
-   losing tracking for a moment. */
+/* Tape jitter: the band's letters snap between small offsets. */
 @keyframes sg-trk-shove {
   0% {
-    transform: translateX(0.12em);
+    transform: translate(0.05em, -0.06em);
   }
   5% {
-    transform: translateX(-0.07em);
+    transform: translate(-0.04em, 0.05em);
   }
   9% {
-    transform: translateX(0.16em);
+    transform: translate(0.07em, 0.02em);
   }
   14% {
-    transform: translateX(0.04em);
+    transform: translate(-0.02em, -0.07em);
   }
   18% {
-    transform: translateX(-0.1em);
+    transform: translate(0.06em, 0.06em);
   }
   23% {
-    transform: translateX(0.09em);
+    transform: translate(-0.05em, -0.03em);
   }
   28% {
-    transform: translateX(-0.04em);
+    transform: translate(0.03em, 0.05em);
   }
   32%,
   100% {
@@ -1593,7 +1570,6 @@ textarea.sg-input {
 @media (prefers-reduced-motion: reduce) {
   .sg-boot #sg-screen,
   .sg-trk-base,
-  .sg-trk::after,
   .sg-ticker-track,
   .sg-roll,
   .sg-rec::before,

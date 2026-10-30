@@ -15,12 +15,12 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
  * The heading's VHS tracking glitch. The heading is drawn three times
- * on top of itself: the real <h1> shows everything above the scan line,
- * one copy shows the thin band at the line (shoved sideways and
- * flaring), and one copy shows everything below it. Moving the line
- * down all three at once reads as one heading being scanned
- * (styles: .sg-trk in globals.css). The copies are plain divs hidden
- * from screen readers, so the page still has one clean h1.
+ * on top of itself: the real <h1> shows everything left of a diagonal
+ * scan band, one copy shows the band itself (its letters jittering and
+ * flaring inside it), and one copy shows everything right of it.
+ * Sliding the band across all three at once reads as one heading being
+ * scanned (styles: .sg-trk in globals.css). The copies are plain divs
+ * hidden from screen readers, so the page still has one clean h1.
  */
 function HeroName() {
   const lines = (
@@ -35,9 +35,9 @@ function HeroName() {
         {lines}
       </h1>
       <div className="sg-hero-name sg-ab sg-trk-copy sg-trk-band" aria-hidden="true">
-        {lines}
+        <span className="sg-trk-shift">{lines}</span>
       </div>
-      <div className="sg-hero-name sg-ab sg-trk-copy sg-trk-below" aria-hidden="true">
+      <div className="sg-hero-name sg-ab sg-trk-copy sg-trk-right" aria-hidden="true">
         {lines}
       </div>
     </div>
