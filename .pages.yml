@@ -1,9 +1,14 @@
 # Pages CMS — the editor Matt uses at https://app.pagescms.org
 #
-# Three screens. "Hero" edits site/content/hero.json: the name, intro
+# Four screens. "Hero" edits site/content/hero.json: the name, intro
 # and button words at the top of the page. "Work" edits
 # site/content/work.json: the showreel link, the ticker words, and each
-# section's cards. "About" edits site/content/about.json. Saving commits to main,
+# section's cards. "About" edits site/content/about.json. "Terms of
+# service" edits site/content/terms.json, the /terms/ page.
+#
+# The privacy policy is deliberately NOT here. It describes what the
+# site's code collects and where it sends it, so it changes with the
+# code, in site/app/privacy/page.tsx. Saving commits to main,
 # and Cloudflare rebuilds the site from that commit (~1–2 min).
 #
 # Images (thumbnails and the headshot) upload to site/public/work/
@@ -206,3 +211,38 @@ content:
         label: Title
         description: Shown under the name, e.g. Video Producer & Animator.
         type: string
+
+  - name: terms
+    label: Terms of service
+    description: The Terms of Service page linked in the footer. The privacy link and contact details at the bottom of the page are added automatically.
+    type: file
+    path: site/content/terms.json
+    format: json
+    fields:
+      - name: updated
+        label: Last updated
+        description: Change this whenever you edit the terms. It shows at the top of the page.
+        type: date
+        required: true
+      - name: intro
+        label: Intro
+        description: The opening paragraph.
+        type: text
+        required: true
+      - name: sections
+        label: Sections
+        description: Each section is a heading and its text. Leave a blank line between paragraphs. Drag to reorder.
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{heading}"
+        fields:
+          - name: heading
+            label: Heading
+            type: string
+            required: true
+          - name: body
+            label: Text
+            type: text
+            required: true
