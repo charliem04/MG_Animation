@@ -2,12 +2,17 @@ import Link from "next/link";
 import { client } from "@/client.config";
 import { auxRoutes, nav } from "@/lib/routes";
 import { NavMenuButton } from "./NavMenuButton";
+import { NavScrollState } from "./NavScrollState";
 
 /**
  * Top bar: the name as the wordmark (or the logo, once
  * client.logoPath is set),
  * the in-page anchors and a Call now button that dials Matt's phone.
  * Sticks on scroll, on bg with a line rule.
+ *
+ * A thin orange bar along its bottom edge shows how far down the page
+ * you are, and the link for the section on screen is lit
+ * (NavScrollState).
  *
  * On phones it's one slim row (name, Call now, Menu) and the anchors
  * fold into a panel the Menu button opens (NavMenuButton).
@@ -51,6 +56,7 @@ export function SiteNav() {
           <NavMenuButton controls="site-menu" />
         </div>
       </div>
+      <NavScrollState />
     </header>
   );
 }
