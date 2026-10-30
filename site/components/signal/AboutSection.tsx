@@ -20,7 +20,9 @@ export function AboutSection() {
       </figure>
       <div className="sg-about-copy">
         <span className="sg-label sg-signal sg-glow">About</span>
-        <h2 id="about-h">{about.heading}</h2>
+        <h2 id="about-h" className="sg-ab">
+          {about.heading}
+        </h2>
         {about.body.map((p, i) => (
           <p key={i}>{p}</p>
         ))}

@@ -41,12 +41,12 @@ function usePerView(): number {
   return per;
 }
 
-function ProjectCard({ p, onOpen }: { p: Project; onOpen: (p: Project) => void }) {
+function ProjectCard({ p, onOpen }: { p: Project; onOpen: (p: Project, thumb: HTMLElement | null) => void }) {
   return (
     <button
       type="button"
       className="sg-card"
-      onClick={() => onOpen(p)}
+      onClick={(e) => onOpen(p, e.currentTarget.querySelector<HTMLElement>(".sg-thumb"))}
       aria-label={`Play ${p.title}, ${p.label}, ${p.runtime}`}
     >
       <span className="sg-thumb sg-scan">
@@ -70,8 +70,8 @@ export function WorkSections() {
   const perView = usePerView();
   const close = useCallback(() => setOpen(null), []);
   const onOpen = useCallback(
-    (p: Project) =>
-      setOpen({ title: p.title, label: p.label, src: vimeoEmbed(p.vimeo), poster: p.thumb, runtime: p.runtime }),
+    (p: Project, thumb: HTMLElement | null) =>
+      setOpen({ title: p.title, label: p.label, src: vimeoEmbed(p.vimeo), poster: p.thumb, runtime: p.runtime, from: thumb }),
     []
   );
 
