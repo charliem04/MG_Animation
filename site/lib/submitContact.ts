@@ -69,7 +69,25 @@ export type ContactPayload = {
    * field's markup in components/Contact.tsx for why that matters.
    */
   referralNote?: string;
+  /**
+   * Second honeypot: a hidden checkbox named "botcheck", Web3Forms' own
+   * trap name. Bots that tick every box tick this one, and the brief is
+   * dropped here, before anything is sent.
+   */
+  botcheck?: boolean;
+  /**
+   * When the form appeared on screen (Date.now()). A brief sent sooner
+   * than MIN_FILL_MS after that was filled by a script, not a person.
+   */
+  startedAt?: number;
 };
+
+/**
+ * Nobody types a name, email, phone number and project details in two
+ * seconds. Kept short on purpose: a false positive throws away a real
+ * lead, so this only catches the obviously automatic.
+ */
+const MIN_FILL_MS = 2000;
 
 export type SubmitResult = { ok: true } | { ok: false; error: string };
 
@@ -107,10 +125,17 @@ export async function submitContact(
    * So it says so in development, where somebody is watching. Never in
    * production: the silence there is the entire mechanism.
    */
-  if (payload.referralNote) {
+  const trap = payload.referralNote
+    ? "the hidden text field was filled in"
+    : payload.botcheck
+      ? "the hidden botcheck box was ticked"
+      : payload.startedAt && Date.now() - payload.startedAt < MIN_FILL_MS
+        ? `it was sent less than ${MIN_FILL_MS / 1000}s after the form appeared`
+        : "";
+  if (trap) {
     if (process.env.NODE_ENV !== "production") {
       console.warn(
-        "[contact] honeypot field is not empty — this submission was " +
+        `[contact] bot trap tripped (${trap}) — this submission was ` +
           "DISCARDED and nothing was sent to Web3Forms or the relay. " +
           "If you did not type in it, something is filling it for you " +
           "(browser autofill, a password manager, an extension). That is " +

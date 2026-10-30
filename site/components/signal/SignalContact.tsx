@@ -11,7 +11,7 @@
  * Every box is cleaned as it's typed and capped at its length
  * (lib/formSafety.ts), and the browser holds back repeat sends.
  */
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { client } from "@/client.config";
 import { submitContact } from "@/lib/submitContact";
 import { dialable, PHONE_NUDGE } from "@/lib/phone";
@@ -105,6 +105,13 @@ export function SignalContact() {
   const [invalid, setInvalid] = useState<string[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  // Bot traps (see lib/submitContact.ts): a hidden checkbox, and when
+  // the form appeared, to spot briefs filled in faster than a person can.
+  const [botcheck, setBotcheck] = useState(false);
+  const startedAt = useRef(0);
+  useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
 
   // Each box's own cleaning, run on every keystroke and paste.
   const CLEAN: Partial<Record<keyof typeof EMPTY, (v: string) => string>> = {
@@ -162,6 +169,8 @@ export function SignalContact() {
       neededBy: form.neededBy === CUSTOM ? form.neededByCustom : form.neededBy,
       message: form.message,
       referralNote: form.referralNote,
+      botcheck,
+      startedAt: startedAt.current,
     });
     if (result.ok) {
       recordSend();
@@ -319,11 +328,16 @@ export function SignalContact() {
             {err("message")}
           </label>
 
-          {/* Honeypot. Off-screen, out of the tab order, and named after
-              nothing a browser or password manager would autofill. */}
+          {/* Honeypots. Off-screen, out of the tab order, and named after
+              nothing a browser or password manager would autofill. People
+              never see them; bots that fill or tick everything trip them. */}
           <label style={{ position: "absolute", left: -9999 }} aria-hidden="true">
             Leave blank
             <input name="referralNote" tabIndex={-1} autoComplete="off" maxLength={80} value={form.referralNote} onChange={set("referralNote")} />
+          </label>
+          <label style={{ position: "absolute", left: -9999 }} aria-hidden="true">
+            Don&rsquo;t tick this
+            <input type="checkbox" name="botcheck" tabIndex={-1} autoComplete="off" checked={botcheck} onChange={(e) => setBotcheck(e.target.checked)} />
           </label>
 
           <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
