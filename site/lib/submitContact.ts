@@ -38,6 +38,7 @@
  * ════════════════════════════════════════════════════════════════════
  */
 import { client } from "@/client.config";
+import { LIMITS, cleanEmail, cleanFinal, cleanPhone, cleanShort } from "@/lib/formSafety";
 
 
 export type ContactPayload = {
@@ -76,24 +77,6 @@ const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? "";
 const FORM_ENDPOINT =
   process.env.NEXT_PUBLIC_FORM_ENDPOINT || "https://api.web3forms.com/submit";
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_LEAD_WEBHOOK_URL ?? "";
-
-/**
- * Strip control characters and collapse whitespace.
- *
- * These strings become an email. A run of control bytes is a mangled
- * message somebody has to squint at, and a newline inside a name is the
- * kind of thing that reads as a header to whatever renders it.
- */
-function scrub(value: string, max: number): string {
-  return (
-    value
-      // eslint-disable-next-line no-control-regex
-      .replace(/[\u0000-\u001f\u007f-\u009f]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, max)
-  );
-}
 
 /** Whether this build has anywhere to send a lead. */
 export function contactConfigured(): boolean {
@@ -137,16 +120,20 @@ export async function submitContact(
     return { ok: true };
   }
 
+  // The last pass before anything leaves the browser: hidden and
+  // command characters out, spacing squeezed, each field cut to its
+  // limit (lib/formSafety.ts). The form already did this as it was
+  // typed; this catches anything that skipped it.
   const fields = compact({
-    name: scrub(payload.name, 120),
-    phone: scrub(payload.phone, 40),
-    email: scrub(payload.email, 160),
-    address: scrub(payload.address, 240),
-    service: scrub(payload.service, 120),
-    urgency: scrub(payload.urgency, 80),
-    budget: scrub(payload.budget ?? "", 40),
-    needed_by: scrub(payload.neededBy ?? "", 80),
-    message: scrub(payload.message, 4000),
+    name: cleanShort(payload.name, LIMITS.name),
+    phone: cleanPhone(payload.phone).trim(),
+    email: cleanEmail(payload.email),
+    address: cleanShort(payload.address, 240),
+    service: cleanShort(payload.service, 120),
+    urgency: cleanShort(payload.urgency, 80),
+    budget: cleanShort(payload.budget ?? "", 40),
+    needed_by: cleanShort(payload.neededBy ?? "", LIMITS.neededByCustom),
+    message: cleanFinal(payload.message, LIMITS.message, true),
   });
 
   const meta = {

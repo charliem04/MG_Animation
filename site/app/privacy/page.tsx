@@ -36,8 +36,8 @@ export default function PrivacyPage() {
       <h2>The project brief form</h2>
       <p>
         When you send a brief, everything you enter is sent to me by email:
-        your name, email address, the services you picked, budget, the date
-        you need it by and your project details. The email also records the
+        your name, email address, phone number, the services you picked,
+        budget, the date you need it by and your project details. The email also records the
         page you sent it from and the time it was sent.
       </p>
       <p>
