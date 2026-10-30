@@ -540,8 +540,8 @@ html {
    h1 alone shows the heading, clean.
 
    Geometry (% of the heading box): the band's bottom edge travels from
-   x = -22.5% to 106%, its top edge sits 14% further right (the lean),
-   and it's a thin 2.5% wide. Points run past the box (-40%..140% tall,
+   x = -16.2% to 106%, its top edge sits 9% further right (the lean),
+   and it's a thin 1.2% wide. Points run past the box (-40%..140% tall,
    -30%..130% wide) so glows are never trimmed. */
 .sg-trk {
   position: relative;
@@ -580,29 +580,29 @@ html {
 }
 @keyframes sg-trk-left {
   0% {
-    clip-path: polygon(-30% -40%, -8.5% -40%, -22.5% 140%, -30% 140%);
+    clip-path: polygon(-30% -40%, -7.2% -40%, -16.2% 140%, -30% 140%);
   }
   55%,
   100% {
-    clip-path: polygon(-30% -40%, 120% -40%, 106% 140%, -30% 140%);
+    clip-path: polygon(-30% -40%, 115% -40%, 106% 140%, -30% 140%);
   }
 }
 @keyframes sg-trk-band {
   0% {
-    clip-path: polygon(-8.5% -40%, -6% -40%, -20% 140%, -22.5% 140%);
+    clip-path: polygon(-7.2% -40%, -6% -40%, -15% 140%, -16.2% 140%);
   }
   55%,
   100% {
-    clip-path: polygon(120% -40%, 122.5% -40%, 108.5% 140%, 106% 140%);
+    clip-path: polygon(115% -40%, 116.2% -40%, 107.2% 140%, 106% 140%);
   }
 }
 @keyframes sg-trk-right {
   0% {
-    clip-path: polygon(-6% -40%, 130% -40%, 130% 140%, -20% 140%);
+    clip-path: polygon(-6% -40%, 130% -40%, 130% 140%, -15% 140%);
   }
   55%,
   100% {
-    clip-path: polygon(122.5% -40%, 130% -40%, 130% 140%, 108.5% 140%);
+    clip-path: polygon(116.2% -40%, 130% -40%, 130% 140%, 107.2% 140%);
   }
 }
 /* Tape jitter: the band's letters snap between small offsets. */
