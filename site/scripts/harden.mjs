@@ -110,7 +110,7 @@ const SECRET_PATTERNS = [
  * Both are public identifiers — anyone who loads /gallery/ can read
  * them off an <img> tag, and Sanity treats them as public. They are
  * not NEXT_PUBLIC_ because nothing in the browser bundle reads them:
- * they are consumed by scripts/gallery.mjs, which bakes the finished
+ * they were consumed by a since-removed gallery script, which baked the finished
  * URLs into content at build time.
  *
  * SANITY_READ_TOKEN is deliberately NOT here, and must never be. It is

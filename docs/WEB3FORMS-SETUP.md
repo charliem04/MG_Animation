@@ -35,10 +35,7 @@ spam, rotate it (section 8) and turn on their spam protection (section 4)
 before reaching for anything more elaborate.
 
 **What it does not do:** it does not store anything, and it is not a list you
-can work through. That is what `workers/lead-relay` is for — it takes a second
-copy of every enquiry and forwards it to the CRM. The two are independent on
-purpose, and the relay is downstream: a relay or CRM outage cannot cost the
-email or show the customer an error. See `workers/lead-relay/README.md`.
+can work through. The inbox is the record.
 
 **Check the current free-tier submission cap before launch.** Web3Forms
 changes its packaging, and this is the one limit that matters here: a cap hit
@@ -53,9 +50,7 @@ to carry.
 1. Go to <https://web3forms.com> and enter the address the enquiries should
    land in.
 2. **Use the client's own office inbox**, not the developer's and not a personal account.
-   Whoever receives this mail receives the leads; the same ownership rule as
-   the Cloudflare, Sanity and CRM accounts in
-   `docs/LAUNCH-CREDENTIALS.md` §2.
+   Whoever receives this mail receives the leads.
 3. The access key arrives by email. It is a UUID.
 
 > **Use a mailbox somebody actually watches**, and preferably a shared one
@@ -93,7 +88,7 @@ a Cloudflare preview deployment to prove this one works.
 
 > **`.env.local` is the one place build configuration lives**, on every
 > platform. Next reads it for `NEXT_PUBLIC_*`, and the standalone Node
-> scripts either side of it — `gallery.mjs`, `csp.mjs`, `harden.mjs` — read
+> scripts either side of it — `csp.mjs`, `harden.mjs` — read
 > it through `scripts/env-file.mjs`. So there is nothing to `export`, and
 > no PowerShell-versus-bash syntax to get right.
 >
@@ -148,7 +143,7 @@ Put the real key back afterwards.
 Do this before launch, not after the first wave.
 
 The site's only defence today is a honeypot: a hidden `company` field in
-`components/Contact.tsx`. If it is filled, `submitContact.ts` reports success
+`components/signal/SignalContact.tsx`. If it is filled, `submitContact.ts` reports success
 to the bot and sends nothing anywhere — so the bot does not learn it was
 caught. That stops naive scripted spam and nothing else.
 
@@ -250,12 +245,6 @@ to be robust to what it is sent.
 | Reply goes to Web3Forms, not the customer | The `email` field did not reach them | It is required on the form, so this means the payload was altered. Check `submitContact.ts` |
 | Suddenly stopped, nothing changed | Monthly plan limit, or the key was rotated | Check the dashboard's usage. This failure is invisible from the site |
 | Spam arriving | The honeypot alone is not enough | Section 4 |
-| Submissions work, no rows in the relay | Unrelated to Web3Forms — the two paths are independent | `NEXT_PUBLIC_LEAD_WEBHOOK_URL`, and the relay's `ALLOWED_ORIGINS`. See `workers/lead-relay/README.md` |
-
-The last row is worth reading twice. The relay call is fired in parallel and
-deliberately never awaited, so **a relay that is refusing every request looks
-identical to one that is working** from the front of the site. The email
-arriving proves Web3Forms, and nothing else.
 
 ---
 
@@ -291,7 +280,4 @@ the file's header comment says so, and it is not a formality.
 | --- | --- |
 | The variable, and every other one | `site/.env.example` |
 | The code, and why it is shaped this way | `site/lib/submitContact.ts` |
-| The form itself | `site/components/Contact.tsx` |
-| Who creates the account | `docs/LAUNCH-CREDENTIALS.md` §2 |
-| The second copy of the lead | `workers/lead-relay/README.md` |
-| The pre-cutover checklist | `README-DEPLOY.md` §9 |
+| The form itself | `site/components/signal/SignalContact.tsx` |

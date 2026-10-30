@@ -69,7 +69,7 @@ export type ContactPayload = {
    * Honeypot — must be empty; bots fill it.
    *
    * Deliberately not named after anything a browser recognises. See the
-   * field's markup in components/Contact.tsx for why that matters.
+   * field's markup in components/signal/SignalContact.tsx for why that matters.
    */
   referralNote?: string;
   /**
@@ -97,7 +97,6 @@ export type SubmitResult = { ok: true } | { ok: false; error: string };
 const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? "";
 const FORM_ENDPOINT =
   process.env.NEXT_PUBLIC_FORM_ENDPOINT || "https://api.web3forms.com/submit";
-const WEBHOOK_URL = process.env.NEXT_PUBLIC_LEAD_WEBHOOK_URL ?? "";
 
 /** Whether this build has anywhere to send a lead. */
 export function contactConfigured(): boolean {
@@ -139,10 +138,10 @@ export async function submitContact(
     if (process.env.NODE_ENV !== "production") {
       console.warn(
         `[contact] bot trap tripped (${trap}) — this submission was ` +
-          "DISCARDED and nothing was sent to Web3Forms or the relay. " +
+          "DISCARDED and nothing was sent to Web3Forms. " +
           "If you did not type in it, something is filling it for you " +
           "(browser autofill, a password manager, an extension). That is " +
-          "a bug, not a caught bot: see components/Contact.tsx."
+          "a bug, not a caught bot: see components/signal/SignalContact.tsx."
       );
     }
     return { ok: true };
@@ -169,31 +168,6 @@ export async function submitContact(
     source: typeof window !== "undefined" ? window.location.href : "",
     submittedAt: new Date().toISOString(),
   };
-
-  /*
-   * ── THE SECOND COPY ──────────────────────────────────────────────
-   * The flat lead, to the relay (workers/lead-relay), which stores it
-   * and forwards it to whatever CRM is configured. Web3Forms' envelope
-   * is not what a CRM wants, so this sends the fields themselves.
-   *
-   * Deliberately not awaited: a relay or CRM outage must not cost a
-   * lead or show the customer an error, and the email below is the
-   * copy that matters.
-   *
-   * `keepalive` is what makes an un-awaited request actually arrive. A
-   * fetch nobody is waiting on is cancelled if the page navigates or
-   * unloads before it completes, which is a real possibility on a form
-   * whose success state is the visitor leaving. It costs nothing here —
-   * the payload is far inside the 64KB keepalive limit.
-   */
-  if (WEBHOOK_URL) {
-    fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...fields, ...meta }),
-      keepalive: true,
-    }).catch((e) => console.warn("[contact] lead relay failed:", e));
-  }
 
   if (!WEB3FORMS_KEY) {
     // Fail loudly and visibly. The old behaviour here was to return

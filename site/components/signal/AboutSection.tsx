@@ -11,7 +11,7 @@ export function AboutSection() {
       <figure className="sg-about-fig">
         <span className="sg-about-shot sg-scan">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={about.headshot} alt={about.headshotAlt || about.name} width={960} height={1200} loading="lazy" />
+          <img src={about.headshot} alt={about.headshotAlt || about.name} width={960} height={1200} loading="lazy" decoding="async" />
         </span>
         <figcaption>
           <span className="sg-about-name">{about.name}</span>

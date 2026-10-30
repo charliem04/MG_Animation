@@ -13,9 +13,7 @@ import "@fontsource/jetbrains-mono/latin-400.css";
 import "@fontsource/jetbrains-mono/latin-700.css";
 import "./globals.css";
 import { client } from "@/client.config";
-import { IS_PREVIEW } from "@/lib/preview";
 import { JsonLd } from "@/components/JsonLd";
-import { PreviewBanner } from "@/components/PreviewBanner";
 import { CookieConsent } from "@/components/CookieConsent";
 import { Analytics } from "@/components/Analytics";
 import { InteractionTracking } from "@/components/InteractionTracking";
@@ -28,11 +26,6 @@ import { SignalMotion } from "@/components/signal/SignalMotion";
 // their own `metadata` export, built from lib/meta.ts.
 export const metadata: Metadata = {
   metadataBase: new URL(client.siteUrl),
-  // Belt and braces with the per-page noindex in lib/meta.ts, the
-  // preview robots.txt and the X-Robots-Tag header: a replica of a real
-  // business competing with that business in search is the expensive
-  // failure, and each of these can be missed on its own.
-  ...(IS_PREVIEW ? { robots: { index: false, follow: false } } : {}),
   title: client.metaTitle,
   description: client.metaDescription,
   alternates: { canonical: client.siteUrl },
@@ -119,7 +112,6 @@ export default function RootLayout({
         <SmoothScroll />
         {/* Renders nothing until the first client-side navigation. */}
         <PageTransition />
-        <PreviewBanner />
         <SplitFilters />
         {/* #sg-screen is what powers on once per visit (POWER_ON above). */}
         <div id="sg-screen">

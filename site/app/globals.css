@@ -174,30 +174,8 @@ html {
   padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px));
 }
 
-.band {
-  padding-block: clamp(56px, 8vw, var(--space-8));
-}
-
-@layer components {
-  .u-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-dim);
-  }
-}
-
 .btn-press {
   @apply transition-colors duration-150 active:translate-y-px;
-}
-
-.ticks li {
-  @apply relative pl-5 text-base;
-}
-.ticks li::before {
-  content: "";
-  @apply absolute left-0 top-[9px] h-[3px] w-[9px] bg-accent;
 }
 
 /* ══ SIGNAL COMPONENTS ═══════════════════════════════════════════════
@@ -240,11 +218,6 @@ html {
 }
 
 /* ── type ── */
-.sg-display {
-  font-family: var(--font-display);
-  font-weight: 800;
-  text-transform: uppercase;
-}
 .sg-label {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -293,6 +266,8 @@ html {
   text-decoration: none;
   text-shadow: 0 0 calc(var(--fx) * 12px) rgba(228, 236, 255, 0.45);
 }
+/* The logo, once client.logoPath is set. Sized to the bar's height. */
+.sg-nav-logo { display: block; height: 28px; width: auto; }
 .sg-nav-links {
   display: flex;
   gap: var(--space-5);
@@ -1675,4 +1650,20 @@ textarea.sg-input {
     min-height: 44px;
     padding-inline: 16px;
   }
+}
+
+/* The wipe between pages (components/PageTransition.tsx): five panels
+   that start covering the screen and sweep off to the right in turn.
+   Each panel's delay is set inline. It never runs under reduced
+   motion; the component doesn't render then. */
+.page-wipe-panel {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  transform-origin: right center;
+  animation: page-wipe 700ms cubic-bezier(0.21, 0.65, 0.36, 1) both;
+}
+@keyframes page-wipe {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }

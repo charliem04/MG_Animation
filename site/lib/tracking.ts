@@ -2,21 +2,10 @@
  * ════════════════════════════════════════════════════════════════════
  *  CONVERSION TRACKING
  *
- *  Two separate things, often confused:
- *
- *  1. EVENTS — did someone tap call, text, book, or send the form.
- *     Handled here, forwarded to Plausible if it is loaded. It is only
- *     loaded after cookie consent, so declining consent means these are
- *     silent no-ops. Nothing is stored or sent by this module itself.
- *
- *  2. CALL TRACKING (dynamic number insertion) — showing a different
- *     phone number per channel so the client can tell whether the site,
- *     the Google Business Profile or Facebook produced the call. That
- *     needs the provider's own script (CallRail and friends), which
- *     rewrites numbers in the DOM at runtime. Set the script URL in
- *     client.config.ts → tracking.dniScriptUrl and it loads with the
- *     other consented scripts. Leave it empty and every number on the
- *     site stays the real one in client.config.ts.
+ *  Did someone tap call or text, or send the form. Forwarded to
+ *  Plausible if it is loaded. It is only loaded after cookie consent,
+ *  so declining consent means these are silent no-ops. Nothing is
+ *  stored or sent by this module itself.
  *
  *  Nothing here fires without a real user gesture, and no event carries
  *  anything identifying — just which action, on which page.
@@ -29,7 +18,7 @@ declare global {
   }
 }
 
-export type ConversionEvent = "Call" | "Text" | "Book" | "Form submit";
+export type ConversionEvent = "Call" | "Text" | "Form submit";
 
 export function trackEvent(
   event: ConversionEvent,

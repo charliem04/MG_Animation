@@ -37,17 +37,11 @@ export function JsonLd() {
       ),
       addressCountry: "US",
     },
-    // Named towns if the config lists them; otherwise the state and,
-    // since Matt works remote, the country.
-    areaServed: client.about.towns.length
-      ? client.about.towns.map((town) => ({
-          "@type": "City",
-          name: `${town}, ${client.address.region}`,
-        }))
-      : [
-          { "@type": "State", name: "Louisiana" },
-          { "@type": "Country", name: "United States" },
-        ],
+    // Louisiana and, since Matt works remote, the country.
+    areaServed: [
+      { "@type": "State", name: "Louisiana" },
+      { "@type": "Country", name: "United States" },
+    ],
     knowsAbout: ["Logo animation", "Documentary video", "Motion graphics", "Video production"],
     logo: client.siteUrl + "/icon.png",
     image: client.siteUrl + client.ogImagePath,

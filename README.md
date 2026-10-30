@@ -1,91 +1,91 @@
-# White-label site template
+# mattjyguidry.tv
 
-A statically-exported Next.js marketing site with the build pipeline,
-integrations and Cloudflare infrastructure already wired up.
+Matt Guidry's portfolio site (video and animation): a one-page showreel
+site with a project brief form, plus Terms of Service and Privacy Policy
+pages.
 
-```
-site/      the Next.js app (static export → Cloudflare Pages)
-workers/   two Cloudflare Workers: lead relay + résumé upload
-docs/      runbooks for the integrations
-```
+- **Stack:** Next.js 14, exported as static files (`site/out/`).
+- **Hosting:** Cloudflare Workers static assets, Worker `mg-animation`.
+  Every push to `main` rebuilds and deploys (about 1–2 minutes).
+- **Content editing:** [Pages CMS](https://app.pagescms.org), configured
+  in [`.pages.yml`](.pages.yml). Saving there commits to `main`.
+- **Form:** posts straight from the browser to Web3Forms, which emails
+  Matt. See [docs/WEB3FORMS-SETUP.md](docs/WEB3FORMS-SETUP.md).
 
-**Requirements:** Node 20+ for the site (Cloudflare Pages reads
-`site/.nvmrc`). **Node 22.6+ for the workers' tests** — `npm test` runs
-the TypeScript directly with `node --test`, which needs Node's built-in
-type stripping.
+## Who edits what
 
-**No Sanity studio ships in this repo yet.** The gallery builds from the
-committed `site/content/gallery.generated.json`; `npm run gallery`
-compares the category lists in `content/types.ts` and
-`content/gallery.ts`, and adds the studio's list to that comparison
-automatically once a `studio/` folder exists. `docs/GALLERY-CMS.md` is
-the runbook for when it does.
+| What | Where | Who |
+| --- | --- | --- |
+| Hero name, intro, button words | Pages CMS → Hero (`site/content/hero.json`) | Matt |
+| Showreel, scrolling words, video cards | Pages CMS → Work (`site/content/work.json`) | Matt |
+| About section and headshot | Pages CMS → About (`site/content/about.json`) | Matt |
+| Terms of Service | Pages CMS → Terms of service (`site/content/terms.json`) | Matt |
+| Privacy Policy | `site/app/privacy/page.tsx` | Developer only |
+| Phone, email, form choices, contact copy, SEO title | `site/client.config.ts` | Developer |
 
-## Quick start
+The Privacy Policy stays in code on purpose: it describes what the
+site's code collects and where it sends it, so it has to change
+whenever the code does.
+
+Each CMS file has a checker next to it (`hero.ts`, `work.ts`,
+`about.ts`, `terms.ts`). If a save leaves something the page can't
+show, the build stops with a plain-English message and the last good
+version stays live.
+
+## Waiting on Matt
+
+Both of these are switched off until Matt sends what's needed.
+
+**Logo.** The nav shows his name as a text wordmark.
+1. Put the file in `site/public/brand/` (SVG preferred, e.g. `logo.svg`).
+2. Set `logoPath: "/brand/logo.svg"` in `site/client.config.ts`.
+3. The nav draws it at 28px tall (`.sg-nav-logo` in `site/app/globals.css`).
+
+**Social accounts.** No social links show on the page. The URLs in
+`client.socials` (only Vimeo today) feed the structured data search
+engines read, and nothing else.
+1. Add each profile URL to `client.socials` in `site/client.config.ts`.
+2. Add its origin (e.g. `https://www.instagram.com`) to `linkOnly` in
+   `site/scripts/csp.mjs`, or the build stops and asks.
+3. Visible links or icons on the page are a small new piece of UI to
+   build at that point; the footer (`SiteFooter` in
+   `site/components/signal/SiteChrome.tsx`) is the natural place.
+
+## Working on it
 
 ```bash
 cd site
-cp .env.example .env.local     # every value is optional to start
 npm install
-npm run dev
+npm run dev        # http://localhost:3000
+npm run build      # the full pipeline, as Cloudflare runs it
 ```
 
-Then work through the list in [PORTING.md](./PORTING.md) — it says what
-was extracted, what was deliberately left behind, and what you owe
-before a site built from this can ship.
+Copy `site/.env.example` to `site/.env.local` for local work. In
+production those values are set on the `mg-animation` Worker.
 
-## The build is the point
+`npm run build` is more than `next build`. After the export it:
 
-`npm run build` is seven steps, and five of them can fail the build:
+- `csp.mjs` writes the Content-Security-Policy into `out/_headers`, and
+  fails if the page references a third-party origin the policy doesn't
+  cover.
+- `fonts.mjs` preloads the hero font.
+- `seo.mjs` fails on titles over 60 characters or descriptions over 160.
+- `routes.mjs` checks every internal link resolves.
+- `harden.mjs` checks no secret or source map ended up in the output.
+
+`npm run check` is an advisory style checker; its "round-stat" notes
+are false positives here.
+
+## Layout
 
 ```
-gallery → next build → csp → fonts → seo → routes --check → harden
+site/
+  app/            pages: home, terms, privacy, 404, robots, sitemap
+  components/
+    signal/       the site's sections (hero, work, about, contact, nav)
+    *.tsx         page wipe, smooth scroll, analytics, cookie banner, structured data
+  content/        CMS files (*.json) and their build-time checkers (*.ts)
+  lib/            form sending and cleaning, routes, consent, tracking
+  public/         images, the reel loop, _headers, _redirects
+  scripts/        the build checks listed above
 ```
-
-- **gallery** — fetches the CMS, fails on a photo with no alt text or a
-  category the site cannot render
-- **csp** — generates the Content-Security-Policy and fails if any
-  origin in the output is not accounted for
-- **fonts** — injects the preload for the display face
-- **seo** — fails on a title over 60 characters or a missing description
-- **routes** — fails on an internal link to a page that does not exist
-- **harden** — fails if a secret, a sourcemap or a stray `.env` shipped
-
-Plus `npm run check`, which is not in the build: a static checker for
-inherited-default frontend patterns. Advisory by default, `--strict` to
-make it fail.
-
-**CI** (`.github/workflows/ci.yml`) runs all of it on every pull request
-and every push to `main`: `npm run lint`, `typecheck`, the full `build`
-and `check` for the site, and `typecheck` plus `npm test` for each
-Worker. It needs no secrets.
-
-## Per-client surface
-
-In rough order of how long each takes:
-
-| What | Where |
-|---|---|
-| Business facts and copy | `site/client.config.ts` |
-| Colours and type | `site/app/globals.css` (token block at the top) |
-| Which pages exist | `site/lib/routes.ts` (`live` flags) |
-| Long-form content | `site/content/*.ts`, behind `site/lib/content.ts` |
-| Third-party origins | `INTEGRATIONS` in `site/scripts/csp.mjs` |
-| Endpoints and keys | `site/.env.local` |
-| Worker config | `workers/*/wrangler.toml` |
-| Images | `site/public/brand/` |
-
-`tailwind.config.ts` maps every colour utility onto the CSS variables in
-`globals.css`, so it should not need editing per client.
-
-## Shipped but not mounted
-
-Some code has no importer on purpose — it is kit, ready for the page
-that needs it, not dead code:
-
-- **Motion and UI primitives:** `BandTransition`, `BeforeAfterSlider`,
-  `DrawRule`, `Mark`, `Pending`, `PinnedSteps`, `Stars` in
-  `site/components/`.
-- **Careers:** `CareersForm`, `Turnstile`, `lib/submitApplication.ts` and
-  `content/careers.ts`, waiting on a `/careers/` page (`live: false` in
-  `lib/routes.ts`). `workers/careers-upload` is its back end.

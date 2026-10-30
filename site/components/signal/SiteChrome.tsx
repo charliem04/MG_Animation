@@ -4,7 +4,8 @@ import { auxRoutes, nav } from "@/lib/routes";
 import { NavMenuButton } from "./NavMenuButton";
 
 /**
- * Top bar: the name as the wordmark (no logo yet, so none is drawn),
+ * Top bar: the name as the wordmark (or the logo, once
+ * client.logoPath is set),
  * the in-page anchors and a Call now button that dials Matt's phone.
  * Sticks on scroll, on bg with a line rule.
  *
@@ -16,7 +17,14 @@ export function SiteNav() {
     <header className="sg-navbar">
       <div className="section sg-nav">
         <Link href="/" className="sg-nav-mark">
-          {client.businessName}
+          {/* No logo yet: logoPath is empty in client.config.ts, so the
+              name is the wordmark. Setting it swaps in the image. */}
+          {client.logoPath ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="sg-nav-logo" src={client.logoPath} alt={client.businessName} />
+          ) : (
+            client.businessName
+          )}
         </Link>
         <div className="sg-nav-right">
           <nav id="site-menu" className="sg-nav-menu" aria-label="Sections">

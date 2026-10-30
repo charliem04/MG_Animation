@@ -47,28 +47,3 @@ jobs:
       # without failing. A client repo that wants it enforced can add
       # -- --strict.
       - run: npm run check
-
-  workers:
-    name: Worker — ${{ matrix.worker }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        worker: [lead-relay, careers-upload]
-    defaults:
-      run:
-        working-directory: workers/${{ matrix.worker }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          # npm test runs the TypeScript directly with node --test,
-          # which needs Node's built-in type stripping (22.6+).
-          node-version: 22
-          cache: npm
-          cache-dependency-path: workers/${{ matrix.worker }}/package-lock.json
-
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test --if-present

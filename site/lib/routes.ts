@@ -32,23 +32,6 @@ export type RouteNode = {
 };
 
 /**
- * Where every primary call to action goes.
- *
- * It used to be `client.bookingUrl || "/contact/"` at each button, so
- * the moment a scheduler URL existed every CTA on the site handed the
- * visitor to a third party mid-read — the nav, the hero, the sticky
- * bar, the call cards and the closing bands all at once. That is the
- * wrong default for someone who is still deciding, and it is not
- * something a booking URL should get to decide on its own.
- *
- * So the two are separated. `client.bookingUrl` now means one thing
- * only: which calendar the embed on /contact/ loads. Getting there is
- * this constant, and /contact/ carries every way in — the phone, the
- * urgent line, the request form and the calendar itself.
- */
-export const CTA_HREF = "/#contact";
-
-/**
  * ── THE TREE ────────────────────────────────────────────────────────
  *
  * Signal is a one-page portfolio, so the nav is in-page anchors plus
@@ -69,25 +52,6 @@ export const auxRoutes: RouteNode[] = [
   { href: "/terms/", label: "Terms of service", live: true, noindex: true },
   { href: "/privacy/", label: "Privacy policy", live: true, noindex: true },
 ];
-
-/**
- * Is this path built yet? Home-page funnel links ask this before they
- * render, so flipping `live` in the registry is all it takes to switch
- * a phase-2 destination on across the whole site.
- */
-export function isLive(href: string): boolean {
-  for (const node of [...nav, ...auxRoutes]) {
-    if (node.href === href) return node.live;
-    const child = node.children?.find((c) => c.href === href);
-    if (child) return child.live;
-  }
-  return false;
-}
-
-/** Children a nav item should actually render — live ones only. */
-export function liveChildren(node: RouteNode): RouteNode[] {
-  return (node.children ?? []).filter((c) => c.live);
-}
 
 /**
  * Should this path be indexed? False for a route that is not built and
@@ -123,60 +87,4 @@ export function livePaths(): { path: string; priority: number }[] {
   walk(nav);
   walk(auxRoutes);
   return out;
-}
-
-/**
- * Breadcrumb trail for a path, derived from the registry.
- *
- * `leafLabel` is for a page the registry cannot know about by name — a
- * case study, or anything else generated per content item. Without it
- * such a page fell through to a one-entry trail, which <Breadcrumbs>
- * declines to render: no visible trail and, worse, no BreadcrumbList
- * schema on exactly the deep pages that most need one. With it, the
- * page is hung off the longest registered path that prefixes it.
- */
-export function trailFor(
-  path: string,
-  leafLabel?: string
-): { href: string; label: string }[] {
-  const trail = [{ href: "/", label: "Home" }];
-
-  for (const node of [...nav, ...auxRoutes]) {
-    if (node.href === path) {
-      trail.push({ href: node.href, label: node.label });
-      return trail;
-    }
-    const child = node.children?.find((c) => c.href === path);
-    if (child) {
-      if (!node.href.includes("#")) {
-        trail.push({ href: node.href, label: node.label });
-      }
-      trail.push({ href: child.href, label: child.label });
-      return trail;
-    }
-  }
-
-  if (!leafLabel) return trail;
-
-  // No exact match: find the deepest registered ancestor. "/" is not a
-  // candidate — it is already the first crumb.
-  let best: RouteNode | undefined;
-  let bestParent: RouteNode | undefined;
-  for (const node of [...nav, ...auxRoutes]) {
-    for (const cand of [node, ...(node.children ?? [])]) {
-      if (cand.href === "/" || cand.href.includes("#")) continue;
-      if (!path.startsWith(cand.href)) continue;
-      if (best && cand.href.length <= best.href.length) continue;
-      best = cand;
-      bestParent = cand === node ? undefined : node;
-    }
-  }
-  if (!best) return trail;
-
-  if (bestParent && !bestParent.href.includes("#")) {
-    trail.push({ href: bestParent.href, label: bestParent.label });
-  }
-  trail.push({ href: best.href, label: best.label });
-  trail.push({ href: path, label: leafLabel });
-  return trail;
 }

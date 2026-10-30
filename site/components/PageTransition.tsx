@@ -47,9 +47,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
-import { dur, ease, stagger } from "@/lib/motion";
-import { useStillness } from "@/lib/useScrollMotion";
+import { usePrefersReducedMotion } from "@/lib/reducedMotion";
 
 /**
  * Five, as in the reference. Enough to read as a sequence, few enough
@@ -84,7 +82,7 @@ const PANELS = [
 
 export function PageTransition() {
   const pathname = usePathname();
-  const still = useStillness();
+  const still = usePrefersReducedMotion();
   /**
    * `run` counts navigations, so returning to a page you have already
    * been on still replays. `seen` is what keeps it off the first load.
@@ -124,25 +122,22 @@ export function PageTransition() {
       className="pointer-events-none fixed inset-0 z-[60] overflow-hidden"
     >
       {PANELS.map((shade, i) => (
-        <motion.span
+        <span
           // The run number is in the key so every navigation remounts
           // the panels and replays them from covering.
           key={`${run}-${i}`}
-          // No divider between panels. The shade step does the
-          // separating on its own, and a hard rule across every band
-          // read as five stripes rather than one surface. The 20.2%
-          // height against 20% spacing is deliberate overlap, so no
-          // sub-pixel seam of the page shows through between them.
-          className="absolute left-0 w-full origin-right"
-          style={{ top: `${i * 20}%`, height: "20.2%", backgroundColor: shade }}
-          initial={{ scaleX: 1 }}
-          animate={{ scaleX: 0 }}
-          // dur.base and stagger.loose rather than numbers of its own:
-          // 0.7s a panel, 120ms apart, so the whole wipe runs about
-          // 1.18s against the 0.78s it did before. Slow enough to watch
-          // the panels leave in sequence, still short of the point where
-          // somebody who just wanted the phone number starts waiting.
-          transition={{ duration: dur.base, delay: i * stagger.loose, ease: ease.out }}
+          // No divider between panels: the shade step separates them.
+          // 20.2% height against 20% spacing is deliberate overlap, so
+          // no sub-pixel seam of the page shows through. The sweep
+          // itself is .page-wipe-panel in app/globals.css: 0.7s a panel,
+          // 120ms apart, about 1.2s in all.
+          className="page-wipe-panel"
+          style={{
+            top: `${i * 20}%`,
+            height: "20.2%",
+            backgroundColor: shade,
+            animationDelay: `${i * 120}ms`,
+          }}
         />
       ))}
     </div>

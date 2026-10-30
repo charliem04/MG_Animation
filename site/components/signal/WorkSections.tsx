@@ -51,7 +51,7 @@ function ProjectCard({ p, onOpen }: { p: Project; onOpen: (p: Project, thumb: HT
     >
       <span className="sg-thumb sg-scan">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={p.thumb} alt="" loading="lazy" width={640} height={360} />
+        <img src={p.thumb} alt="" loading="lazy" decoding="async" width={640} height={360} />
         <span className="sg-split sg-split-r" style={{ backgroundImage: `url(${p.thumb})` }} aria-hidden="true" />
         <span className="sg-split sg-split-b" style={{ backgroundImage: `url(${p.thumb})` }} aria-hidden="true" />
         <span className="sg-tag sg-tag-fmt">{p.format}</span>

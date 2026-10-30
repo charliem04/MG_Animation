@@ -33,14 +33,14 @@
  */
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useReducedMotion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/lib/reducedMotion";
 import Lenis from "lenis";
 
 /** Module-scoped so the route-change effect below can reach the instance. */
 let lenis: Lenis | null = null;
 
 export function SmoothScroll() {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const pathname = usePathname();
 
   useEffect(() => {

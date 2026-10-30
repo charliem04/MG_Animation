@@ -1,4 +1,4 @@
-# Cloudflare Pages response headers.
+# Response headers, applied by Cloudflare's static asset hosting.
 # Rules are matched in order; the most specific match wins per header.
 
 /*
@@ -27,9 +27,8 @@
   # promise to every subdomain — mail., cpanel., whatever a vendor set
   # up years ago — and a browser that has seen it will refuse plain HTTP
   # to those hosts for a year with no way to take it back early. Nobody
-  # has audited what lives under this domain, and the two hostnames that
-  # actually matter, example.com and www.example.com, are both served by
-  # this Pages project and both get the header directly.
+  # has audited what lives under this domain, and the hostnames that
+  # matter are served by this site and get the header directly.
   #
   # So this protects exactly what it can verify. If the subdomains are
   # ever audited and all of them are HTTPS, adding includeSubDomains is
@@ -45,19 +44,32 @@
 /_next/static/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Photography is NOT hashed — replacing a job photo reuses its filename.
+# Images are NOT hashed — replacing one can reuse its filename.
 # A day of browser cache with revalidation after that, so a swapped
 # photo appears within a day rather than never.
 /brand/*
   Cache-Control: public, max-age=86400, must-revalidate
 
+# Thumbnails, the headshot and the reel loop, uploaded through Pages
+# CMS. Same rule as /brand/: a re-uploaded file can keep its name, so a
+# day rather than forever. Without this they were max-age=0, and every
+# visit re-checked each one with the server before showing it.
+/work/*
+  Cache-Control: public, max-age=86400, must-revalidate
+
 /icon.png
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/apple-icon.png
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/favicon.ico
   Cache-Control: public, max-age=86400, must-revalidate
 
 # The Content-Security-Policy is NOT here — scripts/csp.mjs generates it
 # at build time and appends it to the copy of this file in out/. It has
 # to be generated because some of the origins it allows are only known
-# from the build environment: the careers Worker, the CRM webhook.
+# from the build environment (an override of the form endpoint).
 #
 # That script also fails the build if the output references an origin
 # the policy does not cover, so adding an embed forces a decision rather

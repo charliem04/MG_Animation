@@ -4,8 +4,8 @@
  *
  *  public/_headers carries the headers that never change. This one has
  *  to be generated, because some of the origins it allows are only
- *  known from the environment the build ran in: the careers Worker, the
- *  CRM webhook, and any override of the form endpoint. A hand-written
+ *  known from the environment the build ran in: an override of the
+ *  form endpoint. A hand-written
  *  policy would either omit them (breaking the feature in production
  *  and nowhere else) or allow them unconditionally (pointless).
  *
@@ -97,42 +97,20 @@ export const INTEGRATIONS = {
   /** Origins that serve <script>. Kept short on purpose. */
   script: [
     "https://plausible.io", // components/Analytics.tsx, after consent
-    "https://challenges.cloudflare.com", // Turnstile, components/Turnstile.tsx
   ],
 
   /**
    * Origins that serve images. A CMS image CDN goes here — and only
    * here, if nothing else loads from it.
    */
-  img: [
-    // Every gallery photograph, at a width and crop chosen by
-    // scripts/gallery.mjs. A fetch origin, not a link target: nothing
-    // else on the site loads from it — no script, no font, no
-    // stylesheet — which is why it is here and in no other directive.
-    "https://cdn.sanity.io",
-  ],
+  img: [],
 
   /** Origins allowed to be embedded in an <iframe>. */
   frame: [
-    // TODO(client): the scheduler in client.bookingUrl — keep the one
-    // this client uses and delete the other. An allowed frame origin
-    // nothing embeds is a door left open for no reason. Swapping
-    // schedulers without editing this list is blocked by the browser,
-    // which is why the drift check exists. lib/booking.ts knows both.
-    "https://calendly.com",
-    "https://cal.com",
-    "https://challenges.cloudflare.com", // Turnstile renders in an iframe
     // Vimeo's player, for every project and the full reel
     // (components/signal/VideoLightbox.tsx). Its video and scripts load
     // inside that iframe under Vimeo's own policy, not this one.
     "https://player.vimeo.com",
-    // TODO(client): the Google Maps embed in client.mapEmbedSrc
-    // (components/Contact.tsx). Its src is
-    // https://www.google.com/maps/embed?…, so the frame origin is
-    // www.google.com; the tiles and scripts load inside that iframe
-    // under Google's own policy, not this one. Delete this line if the
-    // client has no map.
-    "https://www.google.com",
   ],
 
   /** Origins serving <video>/<audio>. "'self'" is already allowed. */
@@ -149,11 +127,10 @@ export const INTEGRATIONS = {
    */
   linkOnly: [
     "https://schema.org", // JSON-LD @context, a string, never fetched
-    "https://www.facebook.com",
-    "https://www.instagram.com",
-    "https://g.page",
-    // TODO(client): this site's own canonical origin, as it appears in
-    // canonicals, JSON-LD and the OG tags.
+    // Social profiles, as links in the JSON-LD. Add each one's origin
+    // here when its URL goes into client.socials.
+    // This site's own origin, as it appears in canonicals, JSON-LD and
+    // the OG tags.
     "https://mattjyguidry.tv", // client.siteUrl
     "https://vimeo.com", // share links in content/work.ts, parsed, never fetched
     // Framework strings baked into React/Next dev warnings.
@@ -197,12 +174,7 @@ export const INTEGRATIONS = {
    * from it once it loads — a preconnect to anywhere else is a
    * connection opened for nothing.
    */
-  preconnectOnly: [
-    // The booking embed's JS and CSS. Our document never fetches it;
-    // the iframe does, under the scheduler's own policy rather than
-    // this one. See SCHEDULERS in lib/booking.ts.
-    "https://assets.calendly.com",
-  ],
+  preconnectOnly: [  ],
 };
 
 const LINK_ONLY = new Set(INTEGRATIONS.linkOnly);
@@ -218,8 +190,6 @@ export function buildCsp(env = process.env) {
   // from the environment is what keeps a policy generated on a laptop
   // from forbidding the Worker a production build talks to.
   const extra = [
-    env.NEXT_PUBLIC_CAREERS_ENDPOINT, // the résumé upload Worker
-    env.NEXT_PUBLIC_LEAD_WEBHOOK_URL, // optional CRM copy
     env.NEXT_PUBLIC_FORM_ENDPOINT, // only when overriding the form host
   ]
     .map((u) => origin(u ?? ""))

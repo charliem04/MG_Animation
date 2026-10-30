@@ -10,14 +10,19 @@ export const metadata: Metadata = {
 };
 
 /*
+ * Managed in code by the site's developer, NOT in Pages CMS, on
+ * purpose: it describes what the code collects and where it sends it,
+ * so it changes when the code does. (The terms of service are Matt's,
+ * in the CMS.)
+ *
  * Keep this true to what the site actually does. It describes:
  *   · the brief form → Web3Forms → Matt's email (lib/submitContact.ts)
  *   · Vimeo's player, loaded only on play (components/signal/VideoLightbox.tsx)
  *   · Plausible analytics, only after consent and only if
  *     NEXT_PUBLIC_PLAUSIBLE_DOMAIN is set (components/Analytics.tsx)
  *   · the consent choice in localStorage (lib/consent.ts)
- * Switch on anything else (the lead relay Worker, call tracking, a
- * booking embed) and this page needs a line for it.
+ * Switch on anything else (a CRM copy of leads, call tracking, a
+ * booking embed, social embeds) and this page needs a line for it.
  * Not legal advice; have it read before launch if in doubt.
  */
 const EFFECTIVE = "October 29, 2026";
