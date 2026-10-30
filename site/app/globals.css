@@ -1442,6 +1442,13 @@ textarea.sg-input {
 [data-wipe].sg-in h2 {
   animation: sg-glitch 420ms steps(1) 220ms backwards;
 }
+/* About's heading sits in the right column, which the line only
+   reaches ~440ms in; glitch then, or it plays while still covered. */
+@media (min-width: 821px) {
+  .sg-about.sg-in h2 {
+    animation-delay: 460ms;
+  }
+}
 @keyframes sg-glitch {
   0% {
     transform: translate(4px, -2px);
