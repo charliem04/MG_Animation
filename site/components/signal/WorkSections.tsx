@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import { categories, vimeoEmbed, type Project } from "@/content/work";
 import { VideoLightbox, type LightboxItem } from "./VideoLightbox";
 import { WorkCarousel } from "./WorkCarousel";
+import { client } from "@/client.config";
 
 /**
  * How many cards fit side by side. Matches the --per breakpoints on
@@ -51,7 +52,8 @@ function ProjectCard({ p, onOpen }: { p: Project; onOpen: (p: Project, thumb: HT
     >
       <span className="sg-thumb sg-scan">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={p.thumb} alt="" loading="lazy" decoding="async" width={640} height={360} />
+        {/* For image search. Screen readers hear the button's label instead. */}
+        <img src={p.thumb} alt={`Still from ${p.title} (${p.label.toLowerCase()} by ${client.businessName})`} loading="lazy" decoding="async" width={640} height={360} />
         <span className="sg-split sg-split-r" style={{ backgroundImage: `url(${p.thumb})` }} aria-hidden="true" />
         <span className="sg-split sg-split-b" style={{ backgroundImage: `url(${p.thumb})` }} aria-hidden="true" />
         <span className="sg-tag sg-tag-fmt">{p.format}</span>
