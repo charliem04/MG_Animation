@@ -4,15 +4,17 @@ import { Fragment } from "react";
 import { client } from "@/client.config";
 import { isIndexable } from "@/lib/routes";
 import { LegalPage } from "../legal";
-import { robotsFor } from "@/lib/meta";
+import { pageMeta } from "@/lib/meta";
 import { terms, formatDate, paragraphs } from "@/content/terms";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: `Terms of Service — ${client.businessName}`,
+  description: `The terms for using ${client.businessName}'s website and sending a project brief.`,
+  path: "/terms/",
   // From the route registry, the same flag that keeps it out of the
   // sitemap, so the tag and the sitemap can't drift apart.
-  robots: robotsFor(isIndexable("/terms/")),
-};
+  index: isIndexable("/terms/"),
+});
 
 /*
  * The wording comes from content/terms.json, which Matt edits in Pages

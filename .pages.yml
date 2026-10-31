@@ -103,6 +103,11 @@ content:
             label: Year
             type: string
             required: true
+          - name: added
+            label: Date added
+            description: The day the reel went on the site. Search engines show it with the video.
+            type: date
+            required: true
           - name: poster
             label: Poster still
             description: Shown before the muted loop starts. 16:9.
@@ -168,6 +173,11 @@ content:
                 pattern:
                   regex: '^\d{1,2}:[0-5]\d$'
                   message: Use minutes:seconds, like 1:16
+              - name: added
+                label: Date added
+                description: The day this video went on the site. Search engines show it with the video.
+                type: date
+                required: true
               - name: format
                 label: Quality
                 type: select

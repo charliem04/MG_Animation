@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { client } from "@/client.config";
 import { isIndexable } from "@/lib/routes";
 import { LegalPage } from "../legal";
-import { robotsFor } from "@/lib/meta";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: `Privacy Policy — ${client.businessName}`,
-  robots: robotsFor(isIndexable("/privacy/")),
-};
+  description: `What ${client.businessName}'s website collects, where it goes, and your choices.`,
+  path: "/privacy/",
+  index: isIndexable("/privacy/"),
+});
 
 /*
  * Managed in code by the site's developer, NOT in Pages CMS, on

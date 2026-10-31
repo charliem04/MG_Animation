@@ -3,6 +3,7 @@ import { Ticker } from "@/components/signal/Ticker";
 import { WorkSections } from "@/components/signal/WorkSections";
 import { AboutSection } from "@/components/signal/AboutSection";
 import { SignalContact } from "@/components/signal/SignalContact";
+import { VideoJsonLd } from "@/components/VideoJsonLd";
 
 /**
  * ════════════════════════════════════════════════════════════════════
@@ -24,6 +25,7 @@ import { SignalContact } from "@/components/signal/SignalContact";
 export default function Home() {
   return (
     <>
+      <VideoJsonLd />
       <ReelHero />
       <Ticker />
       <WorkSections />

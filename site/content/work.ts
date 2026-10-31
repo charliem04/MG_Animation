@@ -38,6 +38,8 @@ export type Project = {
   vimeo: string;
   /** Real runtime, m:ss. */
   runtime: string;
+  /** When the video went on the site, YYYY-MM-DD. Search engines read it. */
+  added: string;
   format: Format;
 };
 
@@ -54,11 +56,11 @@ const VIMEO_LINK = /(?:vimeo\.com\/(?:video\/)?)?(\d{6,})(?:\/([a-f0-9]{6,}))?(?
  * Player URL for a Vimeo link, or "" if the link is empty or not one
  * we recognise. dnt=1 tells Vimeo not to track the viewer.
  */
-export function vimeoEmbed(link: string): string {
+export function vimeoEmbed(link: string, autoplay = true): string {
   const m = link.trim().match(VIMEO_LINK);
   if (!m) return "";
   const hash = m[2] || m[3];
-  const q = new URLSearchParams({ autoplay: "1", dnt: "1", title: "0", byline: "0", portrait: "0", color: "ff4d1f" });
+  const q = new URLSearchParams({ autoplay: autoplay ? "1" : "0", dnt: "1", title: "0", byline: "0", portrait: "0", color: "ff4d1f" });
   if (hash) q.set("h", hash);
   return `https://player.vimeo.com/video/${m[1]}?${q}`;
 }
@@ -66,9 +68,12 @@ export function vimeoEmbed(link: string): string {
 function checkWork(d: typeof data) {
   const problems: string[] = [];
   const runtime = /^\d{1,2}:[0-5]\d$/;
+  const date = /^\d{4}-\d{2}-\d{2}$/;
+  const dateOk = (v: string | undefined) => !!v && date.test(v) && !Number.isNaN(Date.parse(v));
   const vimeoOk = (v: string) => v === "" || (/vimeo\.com/i.test(v) && VIMEO_LINK.test(v));
 
   if (!runtime.test(d.showreel.runtime)) problems.push(`Showreel: runtime "${d.showreel.runtime}" should look like 0:59`);
+  if (!dateOk(d.showreel.added)) problems.push(`Showreel: "Date added" is missing or not a date`);
   if (!vimeoOk(d.showreel.vimeo)) problems.push(`Showreel: "${d.showreel.vimeo}" is not a Vimeo link`);
 
   for (const c of d.categories) {
@@ -78,6 +83,7 @@ function checkWork(d: typeof data) {
       if (!p.title.trim()) problems.push(`${where}: no title`);
       if (!p.thumb) problems.push(`${where}: no thumbnail`);
       if (!runtime.test(p.runtime)) problems.push(`${where}: runtime "${p.runtime}" should look like 1:16`);
+      if (!dateOk(p.added)) problems.push(`${where}: "Date added" is missing or not a date`);
       if (p.format !== "4K" && p.format !== "HD") problems.push(`${where}: format must be 4K or HD`);
       if (!vimeoOk(p.vimeo)) problems.push(`${where}: "${p.vimeo}" is not a Vimeo link`);
     }

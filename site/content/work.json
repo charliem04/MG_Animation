@@ -2,6 +2,7 @@
   "showreel": {
     "vimeo": "https://vimeo.com/1232085839/63dcf087a9",
     "runtime": "0:59",
+    "added": "2026-10-29",
     "year": "2026",
     "poster": "/work/reel-poster.jpg"
   },
@@ -22,6 +23,7 @@
           "thumb": "/work/logo-clearway.jpg",
           "vimeo": "https://vimeo.com/1240999701/ba4d0c8fe8",
           "runtime": "0:11",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -30,6 +32,7 @@
           "thumb": "/work/logo-dei.jpg",
           "vimeo": "https://vimeo.com/1240999793/cd266e6f94",
           "runtime": "0:15",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -38,6 +41,7 @@
           "thumb": "/work/logo-josh.jpg",
           "vimeo": "https://vimeo.com/1240999702/1225ba8870",
           "runtime": "0:04",
+          "added": "2026-10-29",
           "format": "4K"
         }
       ]
@@ -52,6 +56,7 @@
           "thumb": "/work/doc-olivia.jpg",
           "vimeo": "https://vimeo.com/1241000010/d63282c4ed",
           "runtime": "4:17",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -60,6 +65,7 @@
           "thumb": "/work/doc-alison.jpg",
           "vimeo": "https://vimeo.com/1241000011/104519de88",
           "runtime": "3:45",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -68,6 +74,7 @@
           "thumb": "/work/doc-lhc.jpg",
           "vimeo": "https://vimeo.com/1241000121/119fb18ffa",
           "runtime": "2:41",
+          "added": "2026-10-29",
           "format": "4K"
         }
       ]
@@ -82,6 +89,7 @@
           "thumb": "/work/mo-numbers.jpg",
           "vimeo": "https://vimeo.com/1240998353/c0a5109e9f",
           "runtime": "1:16",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -90,6 +98,7 @@
           "thumb": "/work/mo-lofi.jpg",
           "vimeo": "https://vimeo.com/1240998631/70289e8902",
           "runtime": "8:00",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -98,6 +107,7 @@
           "thumb": "/work/mo-grocer.jpg",
           "vimeo": "https://vimeo.com/1240998222/69ddb1b15c",
           "runtime": "0:30",
+          "added": "2026-10-29",
           "format": "HD"
         }
       ]
@@ -112,6 +122,7 @@
           "thumb": "/work/hu-hastings.jpg",
           "vimeo": "https://vimeo.com/1240999190/eff3c4cda3",
           "runtime": "0:15",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -120,6 +131,7 @@
           "thumb": "/work/hu-dancing.jpg",
           "vimeo": "https://vimeo.com/1240999191/767fd571e9",
           "runtime": "0:15",
+          "added": "2026-10-29",
           "format": "4K"
         },
         {
@@ -128,6 +140,7 @@
           "thumb": "/work/hu-compliance.jpg",
           "vimeo": "https://vimeo.com/1240999127/9122186543",
           "runtime": "2:59",
+          "added": "2026-10-29",
           "format": "4K"
         }
       ]

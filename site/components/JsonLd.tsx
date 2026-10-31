@@ -66,7 +66,7 @@ export function JsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(pruned) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(pruned).replace(/</g, "\\u003c") }}
     />
   );
 }
